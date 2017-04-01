@@ -22,16 +22,24 @@ def get_random_pin():
 
 @csrf_exempt
 def loginView(request):
-    if request.method == "POST":
-        user = authenticate(username=request.POST["username"], password=request.POST["password"])
+    """ View for "logging" the user in. Returns a JSON response with the user's auth token if the user hasn't already logged in, else kicks the user out. """
+    if request.method == "POST":  # Only post requests are accepted.
+        if "username" not in request.POST or "password" not in request.POST:
+            return HttpResponse(json.dumps({"message": "INV_REQ"}), status=400)
+
+        user = authenticate(username=request.POST["username"], password=request.POST["password"])  # Authenticate the user
         if user is not None:
-            user = get_object_or_404(User, username=request.POST["username"])
+            if Profile.objects.filter(user=user).count() > 0:
+                # Check if the profile already exists
+                return HttpResponse(json.dumps({"message": "PROFILE_REGISTERED"}))
+            # Generate new random auth token and PIN
             authToken = get_auth_token()
             pin = get_random_pin()
-            prof = Profile.objects.create(user=user, authToken=authToken, pin=pin)  # TODO Check for already existing profile.
-            resp = {"auth_token": authToken, "pin":pin}
+            # Create a new profile for the user.
+            prof = Profile.objects.create(user=user, authToken=authToken, pin=pin)
+            resp = {"message": "CREATED", "auth_token": authToken, "pin":pin}
             return HttpResponse(json.dumps(resp))
         else:
-            return HttpResponse(json.dumps({"message": "Invalid Credentials"}), status=403)
+            return HttpResponse(json.dumps({"message": "INV_CRED"}), status=403)
     else:
-        return HttpResponse(json.dumps({"message": "Invalid Request"}), status=400)
+        return HttpResponse(json.dumps({"message": "INV_REQ"}), status=400)
