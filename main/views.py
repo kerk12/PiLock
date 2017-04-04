@@ -46,11 +46,12 @@ def loginView(request):
             resp = {"message": "CREATED", "auth_token": authToken, "pin": pin}
             return HttpResponse(json.dumps(resp))
         else:
-            return HttpResponse(json.dumps({"message": "INV_CRED"}), status=403)
+            return HttpResponse(json.dumps({"message": "INV_CRED"}), status=401)
     else:
         return HttpResponse(json.dumps({"message": "INV_REQ"}), status=400)
 
 
+@csrf_exempt
 def authenticateView(request):
     if request.method == "POST":
         if "authToken" not in request.POST or "pin" not in request.POST:
