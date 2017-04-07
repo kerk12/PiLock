@@ -43,7 +43,7 @@ def loginView(request):
             pin = get_random_pin()
             # Create a new profile for the user.
             prof = Profile.objects.create(user=user, authToken=authToken, pin=pin)
-            resp = {"message": "CREATED", "auth_token": authToken, "pin": pin}
+            resp = {"message": "CREATED", "authToken": authToken, "pin": pin}
             return HttpResponse(json.dumps(resp))
         else:
             return HttpResponse(json.dumps({"message": "INV_CRED"}), status=401)
@@ -55,11 +55,11 @@ def loginView(request):
 def authenticateView(request):
     """ Reads the AuthToken passed in from the user, along with the pin. If they both match exactly, start the unlock script. """
     if request.method == "POST":  #Same as above, only accept POST requests
-        if "auth_token" not in request.POST or "pin" not in request.POST:  # Check if both the PIN and the AuthToken are inside the POST request.
+        if "authToken" not in request.POST or "pin" not in request.POST:  # Check if both the PIN and the AuthToken are inside the POST request.
             return HttpResponse(json.dumps({"message": "INV_REQ"}), status=400)
         else:
             givenpin = request.POST["pin"]
-            givenauthtoken = request.POST["auth_token"]
+            givenauthtoken = request.POST["authToken"]
             if Profile.objects.filter(pin=givenpin, authToken=givenauthtoken).count() > 0:
                 # TODO Launch the unlock script.
                 return HttpResponse(json.dumps({"message": "SUCCESS"}), status=200)
