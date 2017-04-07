@@ -53,13 +53,15 @@ def loginView(request):
 
 @csrf_exempt
 def authenticateView(request):
-    if request.method == "POST":
-        if "authToken" not in request.POST or "pin" not in request.POST:
+    """ Reads the AuthToken passed in from the user, along with the pin. If they both match exactly, start the unlock script. """
+    if request.method == "POST":  #Same as above, only accept POST requests
+        if "auth_token" not in request.POST or "pin" not in request.POST:  # Check if both the PIN and the AuthToken are inside the POST request.
             return HttpResponse(json.dumps({"message": "INV_REQ"}), status=400)
         else:
             givenpin = request.POST["pin"]
-            givenauthtoken = request.POST["authToken"]
+            givenauthtoken = request.POST["auth_token"]
             if Profile.objects.filter(pin=givenpin, authToken=givenauthtoken).count() > 0:
+                # TODO Launch the unlock script.
                 return HttpResponse(json.dumps({"message": "SUCCESS"}), status=200)
             else:
                 return HttpResponse(json.dumps({"message": "UNAUTHORIZED"}), status=401)
