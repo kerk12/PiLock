@@ -7,6 +7,7 @@ import random
 import json
 from django.contrib.auth import authenticate, login, logout
 from models import Profile
+from PiLockUnlockScripts.unlock import unlock
 
 
 # Create your views here.
@@ -61,7 +62,7 @@ def authenticateView(request):
             givenpin = request.POST["pin"]
             givenauthtoken = request.POST["authToken"]
             if Profile.objects.filter(pin=givenpin, authToken=givenauthtoken).count() > 0:
-                # TODO Launch the unlock script.
+                unlock()
                 return HttpResponse(json.dumps({"message": "SUCCESS"}), status=200)
             else:
                 return HttpResponse(json.dumps({"message": "UNAUTHORIZED"}), status=401)
