@@ -1,0 +1,3 @@
+[submodule "main/PiLockUnlockScripts"]
+	path = main/PiLockUnlockScripts
+	url = https://github.com/kerk12/PiLockUnlockScripts
