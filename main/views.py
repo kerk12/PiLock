@@ -1,13 +1,12 @@
 from django.shortcuts import render, redirect, get_object_or_404, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
-from django.http import JsonResponse
-from django.contrib.auth.models import User
-from forms import LoginForm
 import random
 import json
 from django.contrib.auth import authenticate, login, logout
 from models import Profile
 from PiLockUnlockScripts.unlock import unlock
+import os, sys
+from PiLock.settings import getApiVersion, getRoot
 
 
 # Create your views here.
@@ -28,7 +27,9 @@ def get_random_pin():
 
 @csrf_exempt
 def loginView(request):
-    """ View for "logging" the user in. Returns a JSON response with the user's auth token if the user hasn't already logged in, else kicks the user out. """
+    # View for "logging" the user in.
+    # Returns a JSON response with the user's auth token if the user hasn't already logged in,
+    # else kicks the user out.#
     if request.method == "POST":  # Only post requests are accepted.
         if "username" not in request.POST or "password" not in request.POST:
             return HttpResponse(json.dumps({"message": "INV_REQ"}), status=400)
@@ -55,7 +56,7 @@ def loginView(request):
 @csrf_exempt
 def authenticateView(request):
     """ Reads the AuthToken passed in from the user, along with the pin. If they both match exactly, start the unlock script. """
-    if request.method == "POST":  #Same as above, only accept POST requests
+    if request.method == "POST":  # Same as above, only accept POST requests
         if "authToken" not in request.POST or "pin" not in request.POST:  # Check if both the PIN and the AuthToken are inside the POST request.
             return HttpResponse(json.dumps({"message": "INV_REQ"}), status=400)
         else:
@@ -66,3 +67,30 @@ def authenticateView(request):
                 return HttpResponse(json.dumps({"message": "SUCCESS"}), status=200)
             else:
                 return HttpResponse(json.dumps({"message": "UNAUTHORIZED"}), status=401)
+
+
+@csrf_exempt
+def changeSettings(request):
+    if request.method == "POST":
+        if "authToken" not in request.POST or "pinOld" not in request.POST or "pinNew" not in request.POST:
+            return HttpResponse(json.dumps({"message": "INV_REQ"}), status=400)
+        else:
+            token = request.POST["authToken"]
+            oldpin = request.POST["oldPin"]
+            newpin = request.POST["newPin"]
+            #Searching for a profile with authToken and pin matching the values sent in POST request
+            if Profile.objects.filter(authToken=token, pin=oldpin).count() > 0:
+                tobeupdate = Profile.objects.get(authToken=token, pin=oldpin)
+                tobeupdate.pin = newpin
+                tobeupdate.save()
+                return HttpResponse(json.dumps({"message": "SUCCESS"}), status=200)
+            else:
+                return HttpResponse(json.dumps({"message": "UNAUTHORIZED"}), status=401)
+    else:
+        return HttpResponse(json.dumps({"message": "INV_REQ"}), status=400)
+
+
+def index(request):
+    # return render(request, 'index.html', context)
+    #Returning response for server's status
+    return HttpResponse(json.dumps({"status": "ALIVE", "version": getApiVersion()}))

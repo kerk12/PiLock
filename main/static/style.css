@@ -1,0 +1,22 @@
+.version {
+    text-align: center;
+}
+
+.version > div {
+    vertical-align: top;
+    display: inline-block;
+}
+
+.container {
+    align: center;
+}
+
+#inputarea {
+    float: left;
+    width: 200px;
+    height: 200px;
+}
+
+.mainpicture {
+    text-align: center;
+}

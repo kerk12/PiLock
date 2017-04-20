@@ -1,0 +1,71 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Update Settings</title>
+    <link rel="stylesheet" type="text/css" href="C:\Users\AGDS\Documents\Projects\PiLock\main\static\style.css"/>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+</head>
+<body>
+
+<main class="container" role="main">
+
+    <nav class="navbar navbar-default">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="index.html">PiLock</a>
+            </div>
+            <ul class="nav navbar-nav">
+                <li class="active"><a href="index.html">Home</a></li>
+                <li><a href="changesettings.html">Update Settings</a></li>
+                <li><a href="register.html">Register</a></li>
+                <li><a href="login.html">Login</a></li>
+            </ul>
+        </div>
+
+    </nav>
+
+    <div id="inputarea" align="center">
+        <nav class="navbar navbar-light bg-faded">
+            <form class="form-inline">
+                <div class="input-group">
+                    <span class="input-group-addon" id="basic-addon1">@</span>
+                    <input type="text" name="authtoken" class="form-control" placeholder="Authorisation Token "
+                           aria-describedby="basic-addon1">
+                </div>
+                <div class="input-group">
+                    <span class="input-group-addon" id="basic-addon1">@</span>
+                    <input type="text" name="oldpin" class="form-control" placeholder="Old Pin"
+                           aria-describedby="basic-addon1">
+                </div>
+                <div class="input-group">
+                    <span class="input-group-addon" id="basic-addon1">@</span>
+                    <input type="text" name="newpin" class="form-control" placeholder="New Pin"
+                           aria-describedby="basic-addon1">
+                </div>
+                <div class="input-group">
+                    <span class="input-group-addon" id="basic-addon1">@</span>
+                    <input type="text" name="retypedpin" class="form-control" placeholder="Type New Pin Again"
+                           aria-describedby="basic-addon1">
+                </div>
+            </form>
+        </nav>
+        <div>
+            <form action="" method="post">
+                <input type="submit" class="btn btn-info" value="Submit Button">
+            </form>
+        </div>
+    </div>
+
+
+    <div id="mainpicture" align="center">
+        <img src="{% static 'images/smartdoor.png' %}">
+    </div>
+
+</main>
+</body>
+</html>

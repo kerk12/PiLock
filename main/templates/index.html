@@ -1,0 +1,38 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="{% static 'style.css' %}"/>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <title>PiLock</title>
+</head>
+<body>
+<main class="container" role="main">
+    <nav class="navbar navbar-default">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="#">PiLock</a>
+            </div>
+            <ul class="nav navbar-nav">
+                <li class="active"><a href="index.html">Home</a></li>
+                <li><a href="changesettings.html">Update Settings</a></li>
+                <li><a href="register.html">Register</a></li>
+                <li><a href="login.html">Login</a></li>
+            </ul>
+        </div>
+    </nav>
+    <div class="mainpicture">
+        <img src="{% static 'images/smartdoor.png' %}">
+    </div>
+
+    <div class="version">
+        <div>
+            <h3>Version:</h3>
+        </div>
+        <div>
+            <h3>{{ version }}</h3>
+        </div>
+    </div>
+</main>
+</body>
+</html>

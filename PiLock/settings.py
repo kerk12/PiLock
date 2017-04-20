@@ -119,3 +119,17 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.10/howto/static-files/
 
 STATIC_URL = '/static/'
+
+
+def getApiVersion():
+    version_object = open("C:\Users\AGDS\Documents\Projects\PiLock\main\\resources\\version.txt", "r+")
+    return version_object.read()
+
+
+def getRoot():
+    root_dir = os.path.dirname(os.path.abspath(__file__))
+    return root_dir
+
+
+STATIC_URL = '/static/'
+
