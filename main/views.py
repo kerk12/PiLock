@@ -70,9 +70,9 @@ def authenticateView(request):
 
 
 @csrf_exempt
-def changeSettings(request):
+def changePin(request):
     if request.method == "POST":
-        if "authToken" not in request.POST or "pinOld" not in request.POST or "pinNew" not in request.POST:
+        if "authToken" not in request.POST or "oldPin" not in request.POST or "newPin" not in request.POST:
             return HttpResponse(json.dumps({"message": "INV_REQ"}), status=400)
         else:
             token = request.POST["authToken"]
