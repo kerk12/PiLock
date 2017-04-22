@@ -122,7 +122,7 @@ STATIC_URL = '/static/'
 
 
 def getApiVersion():
-    version_object = open("C:\Users\AGDS\Documents\Projects\PiLock\main\\resources\\version.txt", "r+")
+    version_object = open("main/resources/version.txt", "r")
     return version_object.read()
 
 
