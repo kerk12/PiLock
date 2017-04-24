@@ -15,7 +15,7 @@ from django.utils.crypto import get_random_string
 
 
 def writeNewSecretKey():
-    fi = open("secret.key", "w")
+    fi = open(BASE_DIR+"/secret.key", "w")
     key = get_random_string(length=64, allowed_chars="abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)")
     fi.write(key)
     fi.close()
@@ -25,7 +25,7 @@ def writeNewSecretKey():
 
 def getSecretKey():
     try:
-        fi = open("secret.key", "r")
+        fi = open(BASE_DIR+"/secret.key", "r")
         key = fi.read()
         fi.close()
     except IOError:
