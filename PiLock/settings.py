@@ -150,6 +150,3 @@ def getRoot():
     root_dir = os.path.dirname(os.path.abspath(__file__))
     return root_dir
 
-
-STATIC_URL = '/static/'
-
