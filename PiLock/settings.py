@@ -11,6 +11,26 @@ https://docs.djangoproject.com/en/1.10/ref/settings/
 """
 
 import os
+from django.utils.crypto import get_random_string
+
+
+def writeNewSecretKey():
+    fi = open("secret.key", "w")
+    key = get_random_string(length=64, allowed_chars="abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)")
+    fi.write(key)
+    fi.close()
+    os.chmod("secret.key", 400)
+    return key
+
+
+def getSecretKey():
+    try:
+        fi = open("secret.key", "r")
+        key = fi.read()
+        fi.close()
+    except IOError:
+        key = writeNewSecretKey()
+    return key
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -20,7 +40,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/1.10/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'l*a2l7*4daan(kih&1r=^9w#w5rpe^bq(n(ljrc1pmbf_gf6%3'
+SECRET_KEY = getSecretKey()
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True

@@ -7,13 +7,9 @@ from models import Profile
 from PiLockUnlockScripts.unlock import unlock
 import os, sys
 from PiLock.settings import getApiVersion, getRoot
-
+from django.utils.crypto import get_random_string
 
 # Create your views here.
-
-def get_random_string(length=12, allowed_chars='abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'):
-    return ''.join(random.choice(allowed_chars) for i in range(length))
-
 
 def get_auth_token():
     chars = 'abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)'
