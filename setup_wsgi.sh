@@ -2,5 +2,6 @@
 
 cp apacheconf/pilock.conf /etc/apache2/sites-available/pilock.conf
 
-python manage.py migrate
+sudo -u www-data python manage.py migrate
 a2ensite pilock
+service apache2 restart
