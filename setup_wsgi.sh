@@ -3,6 +3,7 @@
 cp apacheconf/pilock.conf /etc/apache2/sites-available/pilock.conf
 
 sudo -u www-data python manage.py migrate
+sudo -u www-data python manage.py createsuperuser
 chown www-data:www-data db.sqlite3
 chmod 700 db.sqlite3
 
