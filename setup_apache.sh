@@ -9,9 +9,15 @@ fi
 echo 'Installing required packages'
 
 apt-get update
-apt-get -y install apache2 libapache2-mod-wsgi python-pip
+apt-get -y install apache2 libapache2-mod-wsgi python-pip git
 a2enmod wsgi
 
 mkdir /etc/apache2/ssl
-openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout pilock.key -out pilock.crt
+openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/apache2/ssl/pilock.key -out /etc/apache2/ssl/pilock.crt
+chmod -R 400 /etc/apache2/ssl
 a2enmod ssl
+
+
+echo 'A Self-Signed Certificate has been created. You now need to configure Apache to work with that certificate.'
+echo 'For more info: \n https://hallard.me/enable-ssl-for-apache-server-in-5-minutes/'
+echo 'We also STRONGLY recommend that you enable HSTS, in order to prevent SSL Stripping.'
