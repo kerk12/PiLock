@@ -6,10 +6,35 @@ from django.contrib.auth import authenticate, login, logout
 from models import Profile
 from PiLockUnlockScripts.unlock import unlock
 import os, sys
-from PiLock.settings import getApiVersion, getRoot
+from PiLock.settings import getApiVersion, getRoot, BASE_DIR
 from django.utils.crypto import get_random_string
+import yaml
 
 # Create your views here.
+
+def ReadConfig():
+    fin = open(BASE_DIR+"/config.yml", "r")
+    conf = yaml.load(fin)
+    fin.close()
+    return conf
+
+# I might implement this later on...
+# def writeNewServerID():
+#     fi = open(BASE_DIR+"/server_id", "w")
+#     key = get_random_string(length=64, allowed_chars="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*(-_=+)")
+#     fi.write(key)
+#     fi.close()
+#     os.chmod("server_id", 400)
+#     return key
+#
+# def getServerID():
+#     try:
+#         fin = open(BASE_DIR + "/server_id", "r")
+#         ServerID = fin.read()
+#         fin.close()
+#     except IOError:
+#         ServerID = writeNewServerID()
+#     return ServerID
 
 def get_auth_token():
     chars = 'abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)'
@@ -88,5 +113,8 @@ def changePin(request):
 
 def index(request):
     # return render(request, 'index.html', context)
-    #Returning response for server's status
-    return HttpResponse(json.dumps({"status": "ALIVE", "version": getApiVersion()}))
+    # Returns response with server's status (AKA: Heartbeat)
+    if ReadConfig()["enabled"]:
+        return HttpResponse(json.dumps({"status": "ALIVE", "version": getApiVersion()}))
+    else:
+        return HttpResponse(json.dumps({"status": "LOCKED", "version": getApiVersion()}))

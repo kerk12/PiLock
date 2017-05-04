@@ -1,0 +1,6 @@
+# PiLock Master configuration file
+
+# Master Switch
+# Turns the lock off, if set to False.
+# Default: True
+enabled: True
