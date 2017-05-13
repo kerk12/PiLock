@@ -22,7 +22,5 @@ a2enmod ssl
 echo -e 'A Self-Signed Certificate has been created in /etc/apache2/ssl. You now need to configure Apache to work with that certificate.'
 echo -e 'For more info: \n https://hallard.me/enable-ssl-for-apache-server-in-5-minutes/'
 # TODO: Edit the apache config automatically.
-echo -e 'We also STRONGLY recommend that you enable HSTS, in order to prevent SSL Stripping.'
-echo -e '\n\nAfter performing the above steps, please run setup_wsgi.sh as www-data:'
-echo -e 'sudo -u www-data ./setup_wsgi.sh'
-echo -e 'Also, if you have enabled HSTS, uncomment the SECURE_HSTS_SECONDS line in PiLock/settings.py and edit it appropriately.'
+echo -e '\n\nAfter performing the above steps, please run setup_wsgi.sh as root:'
+echo -e 'sudo ./setup_wsgi.sh'

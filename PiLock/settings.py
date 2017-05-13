@@ -46,8 +46,8 @@ SECRET_KEY = getSecretKey()
 DEBUG = True
 
 # HSTS: Change this to the max age defined by the server.
-# Comment it out if it's not used.
-#SECURE_HSTS_SECONDS = 63072000
+# Comment it to disable HSTS. (NOT recommended)
+SECURE_HSTS_SECONDS = 63072000
 
 # SSL Redirecting
 # CAUTION: Needs to be set to True when using SSL. This will redirect all the traffic to HTTPS.
