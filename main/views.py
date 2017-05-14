@@ -83,6 +83,10 @@ def authenticateView(request):
         else:
             givenpin = request.POST["pin"]
             givenauthtoken = request.POST["authToken"]
+
+            # Check the length of the PIN.
+            if len(givenpin) != 6 or len(givenauthtoken) != 6:
+                return HttpResponse(json.dumps({"message": "UNAUTHORIZED"}), status=401)
             if Profile.objects.filter(pin=givenpin, authToken=givenauthtoken).count() > 0:
                 unlock()
                 return HttpResponse(json.dumps({"message": "SUCCESS"}), status=200)
@@ -99,6 +103,11 @@ def changePin(request):
             token = request.POST["authToken"]
             oldpin = request.POST["oldPin"]
             newpin = request.POST["newPin"]
+
+            # Check the length of both PINs.
+            if len(oldpin) != 6 or len(newpin) != 6:
+                return HttpResponse(json.dumps({"message": "UNAUTHORIZED"}), status=401)
+
             #Searching for a profile with authToken and pin matching the values sent in POST request
             if Profile.objects.filter(authToken=token, pin=oldpin).count() > 0:
                 tobeupdate = Profile.objects.get(authToken=token, pin=oldpin)
