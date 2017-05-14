@@ -1,9 +1,9 @@
 # PiLock Client
 ### A homemade Raspberry Pi & Arduino Controlled Door lock mechanism.
-Developed by Kyriakos Giannakis (kerk12gr@gmail.com).
+Developed by Kyriakos Giannakis (kerk12gr@gmail.com) and Thanos Ageridis.
 
 ### Licence:
-
+The code for this project is licenced under the GPL V3 Licence. 
 
 ### Install:
 1. ```git clone --recursive https://github.com/kerk12/PiLock```
