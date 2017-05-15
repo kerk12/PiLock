@@ -85,7 +85,8 @@ def authenticateView(request):
             givenauthtoken = request.POST["authToken"]
 
             # Check the length of the PIN.
-            if len(givenpin) != 6 or len(givenauthtoken) != 6:
+            # Note to self: NEVER do work when tired!
+            if len(givenpin) != 6:
                 return HttpResponse(json.dumps({"message": "UNAUTHORIZED"}), status=401)
             if Profile.objects.filter(pin=givenpin, authToken=givenauthtoken).count() > 0:
                 unlock()
