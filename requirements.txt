@@ -1,3 +1,4 @@
 Django
 pyserial
 pyyaml
+django-ipware

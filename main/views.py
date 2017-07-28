@@ -1,15 +1,16 @@
 from django.shortcuts import render, redirect, get_object_or_404, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth.models import User
 import random
 import json
 from django.contrib.auth import authenticate, login, logout
-from models import Profile
+from models import Profile, AccessAttempt
 from PiLockUnlockScripts.unlock import unlock
 import os, sys
 from PiLock.settings import getApiVersion, getRoot, BASE_DIR, DEBUG
 from django.utils.crypto import get_random_string
 import yaml
-
+from ipware.ip import get_ip
 # Create your views here.
 
 def ReadConfig():
@@ -45,6 +46,25 @@ def get_random_pin():
     chars = '1234567890'
     return get_random_string(6, chars)
 
+def parse_ip_to_model(request):
+    ip = get_ip(request)
+    if ip is None:
+        return "0.0.0.0"
+    else:
+        return ip
+
+def record_login_attempt(request, success):
+    access_attempt = AccessAttempt.objects.create(usernameEntered=request.POST["username"], successful=success,
+                                                  ip=parse_ip_to_model(request))
+
+def record_unlock_attempt(request, success, profile=None):
+    if profile is not None:
+        access_attempt = AccessAttempt.objects.create(usernameEntered=User.objects.get(profile=profile),
+                                                  successful=success, ip=parse_ip_to_model(request),
+                                                  is_unlock_attempt=True)
+    else:
+        access_attempt = AccessAttempt.objects.create(successful=success, ip=parse_ip_to_model(request),
+                                                      is_unlock_attempt=True)
 
 @csrf_exempt
 def loginView(request):
@@ -55,9 +75,14 @@ def loginView(request):
         if "username" not in request.POST or "password" not in request.POST:
             return HttpResponse(json.dumps({"message": "INV_REQ"}), status=400)
 
+        if len(request.POST["username"]) > 150:
+            return HttpResponse(json.dumps({"message": "INV_REQ"}), status=400)
+
         user = authenticate(username=request.POST["username"],
                             password=request.POST["password"])  # Authenticate the user
+
         if user is not None:
+            record_login_attempt(request, success=True)
             if Profile.objects.filter(user=user).count() > 0:
                 # Check if the profile already exists
                 return HttpResponse(json.dumps({"message": "PROFILE_REGISTERED"}))
@@ -69,6 +94,7 @@ def loginView(request):
             resp = {"message": "CREATED", "authToken": authToken, "pin": pin}
             return HttpResponse(json.dumps(resp))
         else:
+            record_login_attempt(request, success=False)
             return HttpResponse(json.dumps({"message": "INV_CRED"}), status=401)
     else:
         return HttpResponse(json.dumps({"message": "INV_REQ"}), status=400)
@@ -87,16 +113,24 @@ def authenticateView(request):
             # Check the length of the PIN.
             # Note to self: NEVER do work when tired!
             if len(givenpin) != 6:
+                record_unlock_attempt(request, success=False)
                 return HttpResponse(json.dumps({"message": "UNAUTHORIZED"}), status=401)
             if Profile.objects.filter(pin=givenpin, authToken=givenauthtoken).count() > 0:
+                record_unlock_attempt(request, success=True)
                 if not DEBUG:
                     # Make sure we unlock this only when debug mode is off.
                     unlock()
                 return HttpResponse(json.dumps({"message": "SUCCESS"}), status=200)
             else:
+                if Profile.objects.filter(authToken=givenauthtoken).count() > 0:
+                    record_unlock_attempt(request, success=False, profile=Profile.objects.get(authToken=givenauthtoken))
+                else:
+                    record_unlock_attempt(request, success=False)
                 return HttpResponse(json.dumps({"message": "UNAUTHORIZED"}), status=401)
+        # TODO Fix view not returning an HTTP Response
 
 
+# NOTE: Access attempt tracking not possible yet for PIN changing.
 @csrf_exempt
 def changePin(request):
     if request.method == "POST":
