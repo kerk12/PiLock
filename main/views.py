@@ -6,7 +6,7 @@ from django.contrib.auth import authenticate, login, logout
 from models import Profile
 from PiLockUnlockScripts.unlock import unlock
 import os, sys
-from PiLock.settings import getApiVersion, getRoot, BASE_DIR
+from PiLock.settings import getApiVersion, getRoot, BASE_DIR, DEBUG
 from django.utils.crypto import get_random_string
 import yaml
 
@@ -89,7 +89,9 @@ def authenticateView(request):
             if len(givenpin) != 6:
                 return HttpResponse(json.dumps({"message": "UNAUTHORIZED"}), status=401)
             if Profile.objects.filter(pin=givenpin, authToken=givenauthtoken).count() > 0:
-                unlock()
+                if not DEBUG:
+                    # Make sure we unlock this only when debug mode is off.
+                    unlock()
                 return HttpResponse(json.dumps({"message": "SUCCESS"}), status=200)
             else:
                 return HttpResponse(json.dumps({"message": "UNAUTHORIZED"}), status=401)
