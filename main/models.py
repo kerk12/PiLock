@@ -19,3 +19,22 @@ class AccessAttempt(models.Model):
     ip = models.CharField(max_length=15, default="0.0.0.0")
     datetime = models.DateTimeField(auto_now_add=True)
 
+    def __unicode__(self):
+        output = ""
+        if self.is_unlock_attempt:
+            output += "UNLOCK | "
+        else:
+            output += "LOGIN | "
+        if self.usernameEntered:
+            output += self.usernameEntered + " | "
+
+        output += str(self.datetime) + " | "
+        output += self.ip + " | "
+
+        if self.successful:
+            output += "SUCCESS"
+        else:
+            output += "FAILURE"
+
+        return unicode(output)
+
