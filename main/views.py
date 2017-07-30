@@ -116,7 +116,7 @@ def authenticateView(request):
                 record_unlock_attempt(request, success=False)
                 return HttpResponse(json.dumps({"message": "UNAUTHORIZED"}), status=401)
             if Profile.objects.filter(pin=givenpin, authToken=givenauthtoken).count() > 0:
-                record_unlock_attempt(request, success=True)
+                record_unlock_attempt(request, success=True, profile=Profile.objects.get(authToken=givenauthtoken))
                 if not DEBUG:
                     # Make sure we unlock this only when debug mode is off.
                     unlock()
