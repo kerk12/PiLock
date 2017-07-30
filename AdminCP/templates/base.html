@@ -1,0 +1,40 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}{% endblock %}</title>
+
+    <script src="{% static 'jquery.js' %}"></script>
+    <link href="{% static 'bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
+
+    <script src="{% static 'bootstrap/js/bootstrap.min.js' %}"></script>
+
+    <link rel="stylesheet" href="{% static 'acp.css'%}">
+
+    {% block extrastyle %}
+    {% endblock %}
+</head>
+<body>
+    <div id="wrapper" class="toggled">
+        <div id="sidebar-wrapper">
+            {% include "nav.html" %}
+        </div>
+        <div id="page-content-wrapper">
+            <div class="container-fluid">
+                <h1>{% block current_page_title %}{% endblock %}</h1>
+                <a href="#menu-toggle" class="btn btn-default" id="menu-toggle">Toggle Menu</a>
+
+                {% block main_page %}
+                {% endblock %}
+            </div>
+        </div>
+    </div>
+    <script>
+        $("#menu-toggle").click(function(e) {
+            e.preventDefault();
+            $("#wrapper").toggleClass("toggled");
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load datetime_to_str %}
+{% block title %}Access Log - PiLock Admin{% endblock %}
+
+{% block current_page_title %}Access Log{% endblock %}
+
+{% block main_page %}
+<table class="table table-striped">
+    <caption>
+        All Access Attempts
+    </caption>
+    <thead>
+        <tr>
+            <th>Type</th>
+            <th>Username (if available)</th>
+            <th>Timestamp</th>
+            <th>IP</th>
+            <th>Success</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for at in access_attempts %}
+            <tr>
+                <td>
+                    {% if at.is_unlock_attempt %}
+                        UNLOCK
+                    {% else %}
+                        LOGIN
+                    {% endif %}
+                </td>
+                <td>
+                    {% if at.usernameEntered %}
+                        {{ at.usernameEntered }}
+                    {% else %}
+                        Not Available
+                    {% endif %}
+                </td>
+                <td>
+                    {% datetime_to_str at %}
+                </td>
+                <td>
+                    {{ at.ip }}
+                </td>
+                <td>
+                    {% if at.successful %}
+                        SUCCESS
+                    {% else %}
+                        FAILURE
+                    {% endif %}
+                </td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
