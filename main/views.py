@@ -7,7 +7,7 @@ from django.contrib.auth import authenticate, login, logout
 from models import Profile, AccessAttempt
 from PiLockUnlockScripts.unlock import unlock
 import os, sys
-from PiLock.settings import getApiVersion, getRoot, BASE_DIR, DEBUG
+from PiLock.settings import getServerVersion, getRoot, BASE_DIR, DEBUG
 from django.utils.crypto import get_random_string
 import yaml
 from ipware.ip import get_ip
@@ -161,6 +161,6 @@ def index(request):
     # return render(request, 'index.html', context)
     # Returns response with server's status (AKA: Heartbeat)
     if ReadConfig()["enabled"]:
-        return HttpResponse(json.dumps({"status": "ALIVE", "version": getApiVersion()}))
+        return HttpResponse(json.dumps({"status": "ALIVE", "version": getServerVersion()}))
     else:
-        return HttpResponse(json.dumps({"status": "LOCKED", "version": getApiVersion()}))
+        return HttpResponse(json.dumps({"status": "LOCKED", "version": getServerVersion()}))

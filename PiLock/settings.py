@@ -43,20 +43,20 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = getSecretKey()
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 # HSTS: Change this to the max age defined by the server.
 # Comment it to disable HSTS. (NOT recommended)
-SECURE_HSTS_SECONDS = 63072000
+# SECURE_HSTS_SECONDS = 63072000
 
 # SSL Redirecting
 # CAUTION: Needs to be set to True when using SSL. This will redirect all the traffic to HTTPS.
 # Set to False when you are not using SSL.
-SECURE_SSL_REDIRECT = True
+# SECURE_SSL_REDIRECT = True
 
 # Secure session cookie
 # Encrypts session cookies. Recommended: True
-SESSION_COOKIE_SECURE = True
+# SESSION_COOKIE_SECURE = True
 
 
 ALLOWED_HOSTS = ["*"]
@@ -155,10 +155,10 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-LOGIN_URL = '/AdminCP/login_acp'
+LOGIN_URL = '/AdminCP/login'
 
 
-def getApiVersion():
+def getServerVersion():
     version_object = open(BASE_DIR+"/main/resources/version.txt", "r")
     return version_object.read()
 

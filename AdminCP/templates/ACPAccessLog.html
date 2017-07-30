@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% load staticfiles %}
-{% load datetime_to_str %}
+{% load admincp %}
 {% block title %}Access Log - PiLock Admin{% endblock %}
 
 {% block current_page_title %}Access Log{% endblock %}
@@ -8,7 +8,8 @@
 {% block main_page %}
 <table class="table table-striped">
     <caption>
-        All Access Attempts
+        All Access Attempts. <br>
+        Many failed attempts in a small time period could indicate a brute force attempt.
     </caption>
     <thead>
         <tr>

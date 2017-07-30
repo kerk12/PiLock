@@ -30,7 +30,7 @@
     height: 100%;
     margin-left: -250px;
     overflow-y: auto;
-    background: #000;
+    background: #470014;
     -webkit-transition: all 0.5s ease;
     -moz-transition: all 0.5s ease;
     -o-transition: all 0.5s ease;
@@ -71,7 +71,7 @@
 .sidebar-nav li a {
     display: block;
     text-decoration: none;
-    color: #999999;
+    color: #e9e9e9;
 }
 
 .sidebar-nav li a:hover {
@@ -92,7 +92,7 @@
 }
 
 .sidebar-nav > .sidebar-brand a {
-    color: #999999;
+    color: white;
 }
 
 .sidebar-nav > .sidebar-brand a:hover {
@@ -126,4 +126,44 @@
         position: relative;
         margin-right: 0;
     }
+}
+
+.logout {
+    padding-top: 5px;
+    margin-left: -5px;
+}
+
+#version {
+    float: right;
+    font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif;
+    color: #c3c3c3;
+}
+
+.icon-bar {
+  display: block;
+  width: 22px;
+  height: 2px;
+  background-color: #cccccc;
+  border-radius: 1px;
+}
+
+@media (min-width: 768){
+    .navbar-toggle {
+        display: block;
+        float: none;
+    }
+}
+
+.row-ind {
+    padding-left: 15px;
+}
+
+#menu-toggle {
+    display: block;
+    float: left;
+    margin-top: -7px;
+}
+
+.twitter-timeline {
+    height: 500px !important;
 }
