@@ -127,7 +127,8 @@ def authenticateView(request):
                 else:
                     record_unlock_attempt(request, success=False)
                 return HttpResponse(json.dumps({"message": "UNAUTHORIZED"}), status=401)
-        # TODO Fix view not returning an HTTP Response
+    else:
+        return HttpResponse(json.dumps({"message": "INV_REQ"}), status=400)
 
 
 # NOTE: Access attempt tracking not possible yet for PIN changing.
