@@ -17,6 +17,7 @@
             <th>Last Name</th>
             <th>Is Staff?</th>
             <th>Has associated app?</th>
+            <th>Actions</th>
         </tr>
     </thead>
     <tbody>
@@ -44,6 +45,9 @@
                     {% else %}
                         <span style="color: red;">NO</span>
                     {% endif %}
+                </td>
+                <td>
+                    <a href="{% url 'ACP-Users-Delete' %}/{{ us.id }}"><img src="{% static 'material_icons/delete.png' %}"></a>
                 </td>
             </tr>
         {% endfor %}

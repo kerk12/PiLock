@@ -63,3 +63,13 @@ def create_user(request):
     else:
         form = CreateUserForm()
         return render(request, "ACPUserCreate.html", {"form": form})
+
+@login_required
+def delete_user(request, id_to_del):
+    try:
+        user = User.objects.get(id=id_to_del).delete()
+    except User.DoesNotExist:
+        pass
+    finally:
+        return redirect("ACP-Users-index")
+
