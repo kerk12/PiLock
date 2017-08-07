@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load admincp %}
+{% load bootstrap %}
+{% block title %}Create User - PiLock Admin{% endblock %}
+
+{% block current_page_title %}Create a User{% endblock %}
+
+{% block main_page %}
+<form role="form" action="{% url 'ACP-Users-Create' %}" method="post">
+    {% csrf_token %}
+    {{ form|bootstrap }}
+    <div class="form-group">
+      <button type="submit" class="btn btn-primary">Create</button>
+    </div>
+</form>
+{% endblock %}

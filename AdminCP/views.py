@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
-from .forms import LoginForm
+from .forms import LoginForm, CreateUserForm
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.shortcuts import render
@@ -47,3 +47,19 @@ def access_log_home(request):
 def users_index(request):
     users = User.objects.all()
     return render(request, "ACPUserList.html", {"users": users})
+
+@login_required
+def create_user(request):
+    if request.method == "POST":
+        form = CreateUserForm(request.POST)
+        if form.is_valid():
+            user = form.save(commit=False)
+            cd = form.cleaned_data
+            user.set_password(cd["password"])
+            user.save()
+            return redirect("ACP-Users-index")
+        else:
+            return render(request, "ACPUserCreate.html", {"form": form})
+    else:
+        form = CreateUserForm()
+        return render(request, "ACPUserCreate.html", {"form": form})
