@@ -164,6 +164,19 @@
     margin-top: -7px;
 }
 
+/* Top Menu */
+
+.top_menu ul {
+    padding: 0;
+    margin: 0;
+
+}
+
+.top_menu li {
+    display: inline;
+    list-decoration: none;
+}
+
 .twitter-timeline {
     height: 500px !important;
 }

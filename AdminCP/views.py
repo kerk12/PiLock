@@ -5,7 +5,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.shortcuts import render
 from django.shortcuts import redirect
-from main.models import AccessAttempt
+from main.models import AccessAttempt, Profile
 from django.contrib.auth.decorators import login_required
 
 # Create your views here.
@@ -65,10 +65,19 @@ def create_user(request):
         return render(request, "ACPUserCreate.html", {"form": form})
 
 @login_required
-def delete_user(request, id_to_del):
+def delete_user(request, id_to_del=None):
     try:
         user = User.objects.get(id=id_to_del).delete()
     except User.DoesNotExist:
+        pass
+    finally:
+        return redirect("ACP-Users-index")
+
+@login_required
+def delete_profile(request, user_id=None):
+    try:
+        profile = Profile.objects.get(user=int(user_id)).delete()
+    except Profile.DoesNotExist, ValueError:
         pass
     finally:
         return redirect("ACP-Users-index")

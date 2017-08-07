@@ -6,6 +6,11 @@
 {% block current_page_title %}Access Log{% endblock %}
 
 {% block main_page %}
+<div class="top_menu">
+    <ul>
+        <li><a href="{% url 'ACP-Users-Create'%}"><button type="button" class="btn btn-xs btn-primary">Create User</button></a></li>
+    </ul>
+</div>
 <table class="table table-striped">
     <caption>
         All the registered Users:<br>
@@ -41,7 +46,7 @@
                 </td>
                 <td>
                     {% if us.profile %}
-                        <span style="color: green;">YES</span>
+                        <a href="{% url 'ACP-Users-DeleteProfile' %}/{{ us.id }}"><span style="color: green;">YES</span></a>
                     {% else %}
                         <span style="color: red;">NO</span>
                     {% endif %}
