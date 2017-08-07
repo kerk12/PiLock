@@ -46,16 +46,26 @@
                 </td>
                 <td>
                     {% if us.profile %}
-                        <a href="{% url 'ACP-Users-DeleteProfile' %}/{{ us.id }}"><span style="color: green;">YES</span></a>
+                        <a class="profile_delete" href="{% url 'ACP-Users-DeleteProfile' %}/{{ us.id }}"><span style="color: green;">YES</span></a>
                     {% else %}
                         <span style="color: red;">NO</span>
                     {% endif %}
                 </td>
                 <td>
-                    <a href="{% url 'ACP-Users-Delete' %}/{{ us.id }}"><img src="{% static 'material_icons/delete.png' %}"></a>
+                    <a class="user_delete" href="{% url 'ACP-Users-Delete' %}/{{ us.id }}"><img src="{% static 'material_icons/delete.png' %}"></a>
                 </td>
             </tr>
         {% endfor %}
     </tbody>
 </table>
+<script>
+    $(document).ready( function(){
+        $(".user_delete").click(function (){
+            return confirm("The user you selected will be deleted. Are you sure?");
+        });
+        $(".profile_delete").click(function (){
+            return confirm("The selected user's device profile will be deleted. Are you sure?");
+        });
+    });
+</script>
 {% endblock %}
