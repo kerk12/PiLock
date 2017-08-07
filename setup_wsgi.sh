@@ -6,6 +6,9 @@ then
 	exit 1
 fi
 
+echo 'Switching to /var/www'
+cd /var/www/PiLock
+
 echo 'Copying the main PiLock configuration file for Apache...'
 sleep 1s
 cp apacheconf/pilock.conf /etc/apache2/sites-available/pilock.conf

@@ -16,6 +16,8 @@ echo 'Creating the project directory in /var/www and copying files...'
 sleep 2s
 mkdir -p /var/www/PiLock
 cp -r $(pwd) /var/www/PiLock/
+chown -R www-data:www-data /var/www/PiLock
+chmod -R 700 /var/www/PiLock
 
 echo 'Installing Python Package requirements...'
 sleep 2s

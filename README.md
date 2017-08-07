@@ -8,7 +8,7 @@ The code for this project is licenced under the GPL V3 Licence.
 ### Install:
 1. ```git clone --recursive https://github.com/kerk12/PiLock```
 
-2. Run the first setup script as root. This will install all the required stuff including apache, wsgi, pip, along with all the required python libraries needed for the server to function.
+2. Run the first setup script as root. This will install all the required stuff including apache, wsgi, pip, along with all the required python libraries needed for the server to function. This creates a directory to the default apache working directory and copies everything there.
 ```
 cd PiLock
 chmod 777 setup_apache.sh
