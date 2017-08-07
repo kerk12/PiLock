@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/1.10/ref/settings/
 
 import os
 from django.utils.crypto import get_random_string
-
+from django.core.urlresolvers import reverse_lazy
 
 def writeNewSecretKey():
     fi = open(BASE_DIR+"/secret.key", "w")
@@ -156,7 +156,7 @@ USE_TZ = True
 STATIC_ROOT = '/var/www/PiLock/static/'
 STATIC_URL = '/static/'
 
-LOGIN_URL = '/AdminCP/login'
+LOGIN_URL = reverse_lazy('ACP-Login')
 
 
 def getServerVersion():

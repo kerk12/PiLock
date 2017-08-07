@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 from .forms import LoginForm
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.models import User
 from django.shortcuts import render
 from django.shortcuts import redirect
 from main.models import AccessAttempt
@@ -41,3 +42,8 @@ def index(request):
 def access_log_home(request):
     access_attempts = AccessAttempt.objects.all()
     return render(request, "ACPAccessLog.html", {"access_attempts": access_attempts})
+
+@login_required
+def users_index(request):
+    users = User.objects.all()
+    return render(request, "ACPUserList.html", {"users": users})
