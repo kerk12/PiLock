@@ -125,6 +125,7 @@
     #wrapper.toggled #page-content-wrapper {
         position: relative;
         margin-right: 0;
+        padding-top: 0;
     }
 }
 
@@ -179,4 +180,10 @@
 
 .twitter-timeline {
     height: 500px !important;
+}
+
+.logo img {
+    display: block;
+    margin: 0 auto;
+    width: 150px;
 }
