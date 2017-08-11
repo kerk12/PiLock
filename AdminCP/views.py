@@ -19,7 +19,7 @@ def login_acp(request):
         form = LoginForm(request.POST)
         if form.is_valid():
             cd = form.cleaned_data
-            user = authenticate(request, username=cd["username"], password=cd["password"])
+            user = authenticate(username=cd["username"], password=cd["password"])
             # print cd
             if user is not None:
                 if user.is_staff:
