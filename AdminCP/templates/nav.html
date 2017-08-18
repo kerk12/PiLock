@@ -1,8 +1,9 @@
+{% load staticfiles %}
 <ul class="sidebar-nav">
                 <li class="sidebar-brand">
-                    <a href="{% url 'ACP-index' %}">
-                        PiLock Admin
-                    </a>
+                    <div class="logo">
+                        <a href="{% url 'ACP-index' %}"><img src="{% static 'img/logo-white.png'%}" alt="PiLock"></a>
+                    </div>
                 </li>
                 <li>
                     <a href="{% url 'ACP-index' %}">Dashboard</a>
