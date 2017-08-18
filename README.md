@@ -1,4 +1,4 @@
-![PiLock Logo](https://cloud.kgiannakis.me/index.php/s/U9WIlNIinCFzsLZ/download)
+![PiLock Logo](https://raw.githubusercontent.com/kerk12/PiLock/master/main/static/img/logo.png)
 
 # PiLock Server
 ### A homemade Raspberry Pi & Arduino Controlled Door lock mechanism.
