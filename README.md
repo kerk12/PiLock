@@ -1,6 +1,6 @@
 # PiLock Server
 ### A homemade Raspberry Pi & Arduino Controlled Door lock mechanism.
-Developed by Kyriakos Giannakis (kerk12gr@gmail.com) and Thanos Ageridis.
+Developed by Kyriakos Giannakis (kerk12gr@gmail.com).
 
 ### Licence:
 The code for this project is licenced under the GPL V3 Licence. 

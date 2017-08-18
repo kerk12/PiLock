@@ -103,6 +103,7 @@ def loginView(request):
 @csrf_exempt
 def authenticateView(request):
     """ Reads the AuthToken passed in from the user, along with the pin. If they both match exactly, start the unlock script. """
+    # Originally coded by Thanos Ageridis
     if request.method == "POST":  # Same as above, only accept POST requests
         if "authToken" not in request.POST or "pin" not in request.POST:  # Check if both the PIN and the AuthToken are inside the POST request.
             return HttpResponse(json.dumps({"message": "INV_REQ"}), status=400)
