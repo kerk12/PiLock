@@ -16,7 +16,7 @@ class AccessAttempt(models.Model):
     usernameEntered = models.CharField(max_length=150, blank=True)
     is_unlock_attempt = models.BooleanField(default=False)
     successful = models.BooleanField(default=False)
-    ip = models.CharField(max_length=15, default="0.0.0.0")
+    ip = models.GenericIPAddressField(protocol="IPv4", default="0.0.0.0")
     datetime = models.DateTimeField(auto_now_add=True)
 
     def __unicode__(self):
