@@ -8,7 +8,7 @@ from django.conf import settings
 
 class Profile(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL)
-    authToken = models.CharField(max_length=64, blank=True, null=False)
+    authToken = models.CharField(max_length=64)
     pin = models.CharField(max_length=6, default="123456")
 
 
