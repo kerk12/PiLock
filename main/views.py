@@ -86,8 +86,15 @@ def loginView(request):
             if Profile.objects.filter(user=user).count() > 0:
                 # Check if the profile already exists
                 return HttpResponse(json.dumps({"message": "PROFILE_REGISTERED"}))
-            # Generate new random auth token and PIN
+            # Generate new random auth token
             authToken = get_auth_token()
+
+            if "passwordless" in request.POST and request.POST["passwordless"] == "1":
+                # The user requested passwordless unlocks. Create new profile without a PIN.
+                prof = Profile.objects.create(user=user, authToken=authToken)
+                resp = {"message": "CREATED", "authToken": authToken}
+                return HttpResponse(json.dumps(resp))
+
             pin = get_random_pin()
             # Create a new profile for the user.
             prof = Profile.objects.create(user=user, authToken=authToken, pin=pin)
@@ -105,18 +112,31 @@ def authenticateView(request):
     """ Reads the AuthToken passed in from the user, along with the pin. If they both match exactly, start the unlock script. """
     # Originally coded by Thanos Ageridis
     if request.method == "POST":  # Same as above, only accept POST requests
-        if "authToken" not in request.POST or "pin" not in request.POST:  # Check if both the PIN and the AuthToken are inside the POST request.
+        if "authToken" not in request.POST:  # Check if the AuthToken is inside the POST request.
             return HttpResponse(json.dumps({"message": "INV_REQ"}), status=400)
         else:
-            givenpin = request.POST["pin"]
             givenauthtoken = request.POST["authToken"]
+            if "pin" in request.POST:
+                passwordless = False
+                givenpin = request.POST["pin"]
 
-            # Check the length of the PIN.
-            # Note to self: NEVER do work when tired!
-            if len(givenpin) != 6:
-                record_unlock_attempt(request, success=False)
-                return HttpResponse(json.dumps({"message": "UNAUTHORIZED"}), status=401)
-            if Profile.objects.filter(pin=givenpin, authToken=givenauthtoken).count() > 0:
+                # Check the length of the PIN.
+                # Note to self: NEVER do work when tired!
+                if len(givenpin) != 6:
+                    record_unlock_attempt(request, success=False)
+                    return HttpResponse(json.dumps({"message": "UNAUTHORIZED"}), status=401)
+            else:
+                passwordless = True
+
+            authenticated = False
+            if passwordless:
+                if Profile.objects.filter(authToken=givenauthtoken).count() > 0:
+                    authenticated = True
+            else:
+                if Profile.objects.filter(pin=givenpin, authToken=givenauthtoken).count() > 0:
+                    authenticated = True
+
+            if authenticated:
                 record_unlock_attempt(request, success=True, profile=Profile.objects.get(authToken=givenauthtoken))
                 if not DEBUG:
                     # Make sure we unlock this only when debug mode is off.
