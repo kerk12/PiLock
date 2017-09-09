@@ -10,6 +10,7 @@ class Profile(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL)
     authToken = models.CharField(max_length=64)
     pin = models.CharField(max_length=6, blank=True)
+    wearToken = models.CharField(max_length=32, blank=True)
 
 
 class AccessAttempt(models.Model):

@@ -5,5 +5,6 @@ urlpatterns = [
     url(r"^login$", views.loginView, name="Login"),
     url(r"^authentication", views.authenticateView, name="Authentication"),
     url(r'^changepin', views.changePin, name="ChangePin"),
+    url(r'^weartoken', views.getWearToken, name="WearToken"),
     url(r'^$', views.index)
 ]

@@ -41,6 +41,10 @@ def get_auth_token():
     chars = 'abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)'
     return get_random_string(50, chars)
 
+def get_watch_token():
+    chars = 'abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)'
+    return get_random_string(32, chars)
+
 
 def get_random_pin():
     chars = '1234567890'
@@ -151,6 +155,30 @@ def authenticateView(request):
     else:
         return HttpResponse(json.dumps({"message": "INV_REQ"}), status=400)
 
+@csrf_exempt
+def getWearToken(request):
+    if request.method == "POST":
+        if "authToken" not in request.POST or "pin" not in request.POST:
+            return HttpResponse(json.dumps({"message": "INV_REQ"}), status=400)
+
+        givenauthtoken = request.POST["authToken"]
+        print givenauthtoken
+        givenpin = request.POST["pin"]
+
+        if Profile.objects.filter(authToken=givenauthtoken, pin=givenpin).count() > 0:
+            prof = Profile.objects.filter(authToken=givenauthtoken, pin=givenpin).get()
+
+            # If the Profile doesn't have a watch token, generate one and return it, else, get the already existing one.
+            if prof.wearToken:
+                return HttpResponse(json.dumps({"message": "SUCCESS", "wearToken": prof.wearToken}), status=200)
+            else:
+                prof.wearToken = get_watch_token()
+                prof.save()
+                return HttpResponse(json.dumps({"message": "SUCCESS", "wearToken": prof.wearToken}), status=200)
+        else:
+            return HttpResponse(json.dumps({"message": "UNAUTHORIZED"}), status=401)
+    else:
+        return HttpResponse(json.dumps({"message": "INV_REQ"}), status=400)
 
 # NOTE: Access attempt tracking not possible yet for PIN changing.
 @csrf_exempt
