@@ -129,11 +129,20 @@ def authenticateView(request):
                 if len(givenpin) != 6:
                     record_unlock_attempt(request, success=False)
                     return HttpResponse(json.dumps({"message": "UNAUTHORIZED"}), status=401)
+            elif "wearToken" in request.POST:
+                passwordless = True
+                wear_unlock = True
+
+                givenweartoken = request.POST["wearToken"]
             else:
                 passwordless = True
+                wear_unlock = False
 
             authenticated = False
-            if passwordless:
+            if passwordless and wear_unlock:
+                if Profile.objects.filter(authToken=givenauthtoken, wearToken=givenweartoken).count() > 0:
+                    authenticated = True
+            elif passwordless and not wear_unlock:
                 if Profile.objects.filter(authToken=givenauthtoken).count() > 0:
                     authenticated = True
             else:
