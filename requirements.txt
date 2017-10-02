@@ -3,3 +3,4 @@ pyserial
 pyyaml
 django-ipware
 django-bootstrap-form
+passlib
