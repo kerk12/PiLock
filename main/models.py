@@ -8,9 +8,10 @@ from django.conf import settings
 
 class Profile(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL)
-    authToken = models.CharField(max_length=64)
-    pin = models.CharField(max_length=6, blank=True)
-    wearToken = models.CharField(max_length=32, blank=True)
+    # Hashed fields below. Length set to 130 characters, to accommodate SHA512.
+    authToken = models.CharField(max_length=130)
+    pin = models.CharField(max_length=130, blank=True)
+    wearToken = models.CharField(max_length=130, blank=True)
 
 
 class AccessAttempt(models.Model):

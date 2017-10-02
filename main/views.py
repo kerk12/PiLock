@@ -11,6 +11,7 @@ from PiLock.settings import getServerVersion, getRoot, BASE_DIR, DEBUG
 from django.utils.crypto import get_random_string
 import yaml
 from ipware.ip import get_ip
+from passlib.hash import pbkdf2_sha512
 # Create your views here.
 
 def ReadConfig():
@@ -92,17 +93,19 @@ def loginView(request):
                 return HttpResponse(json.dumps({"message": "PROFILE_REGISTERED"}))
             # Generate new random auth token
             authToken = get_auth_token()
+            authToken_crypt = pbkdf2_sha512.hash(authToken)
 
             if "passwordless" in request.POST and request.POST["passwordless"] == "1":
                 # The user requested passwordless unlocks. Create new profile without a PIN.
-                prof = Profile.objects.create(user=user, authToken=authToken)
-                resp = {"message": "CREATED", "authToken": authToken}
+                prof = Profile.objects.create(user=user, authToken=authToken_crypt)
+                resp = {"message": "CREATED", "authToken": authToken, "device_profile_id":prof.id}
                 return HttpResponse(json.dumps(resp))
 
             pin = get_random_pin()
+            pin_crypt = pbkdf2_sha512.hash(pin)
             # Create a new profile for the user.
-            prof = Profile.objects.create(user=user, authToken=authToken, pin=pin)
-            resp = {"message": "CREATED", "authToken": authToken, "pin": pin}
+            prof = Profile.objects.create(user=user, authToken=authToken_crypt, pin=pin_crypt)
+            resp = {"message": "CREATED", "authToken": authToken, "pin": pin, "device_profile_id":prof.id}
             return HttpResponse(json.dumps(resp))
         else:
             record_login_attempt(request, success=False)
@@ -116,9 +119,10 @@ def authenticateView(request):
     """ Reads the AuthToken passed in from the user, along with the pin. If they both match exactly, start the unlock script. """
     # Originally coded by Thanos Ageridis
     if request.method == "POST":  # Same as above, only accept POST requests
-        if "authToken" not in request.POST:  # Check if the AuthToken is inside the POST request.
+        if "authToken" not in request.POST or "device_profile_id" not in request.POST:  # Check if the AuthToken and the ID is inside the POST request.
             return HttpResponse(json.dumps({"message": "INV_REQ"}), status=400)
         else:
+            givenid = request.POST["device_profile_id"]
             givenauthtoken = request.POST["authToken"]
             if "pin" in request.POST:
                 passwordless = False
@@ -139,25 +143,32 @@ def authenticateView(request):
                 wear_unlock = False
 
             authenticated = False
-            if passwordless and wear_unlock:
-                if Profile.objects.filter(authToken=givenauthtoken, wearToken=givenweartoken).count() > 0:
-                    authenticated = True
-            elif passwordless and not wear_unlock:
-                if Profile.objects.filter(authToken=givenauthtoken).count() > 0:
-                    authenticated = True
-            else:
-                if Profile.objects.filter(pin=givenpin, authToken=givenauthtoken).count() > 0:
-                    authenticated = True
+            profile = Profile.objects.filter(id=givenid)
+            prof_count = profile.count()
+            if prof_count > 0:
+                profile = profile.get()
+                if passwordless and wear_unlock:
+                    # if Profile.objects.filter(authToken=givenauthtoken, wearToken=givenweartoken).count() > 0:
+                    if pbkdf2_sha512.verify(givenauthtoken, profile.authToken) and pbkdf2_sha512.verify(givenweartoken, profile.wearToken):
+                        authenticated = True
+                elif passwordless and not wear_unlock:
+                    # if Profile.objects.filter(authToken=givenauthtoken).count() > 0:
+                    if pbkdf2_sha512.verify(givenauthtoken, profile.authToken):
+                        authenticated = True
+                else:
+                    # if Profile.objects.filter(pin=givenpin, authToken=givenauthtoken).count() > 0:
+                    if pbkdf2_sha512.verify(givenpin, profile.pin) and pbkdf2_sha512.verify(givenauthtoken, profile.authToken):
+                        authenticated = True
 
             if authenticated:
-                record_unlock_attempt(request, success=True, profile=Profile.objects.get(authToken=givenauthtoken))
+                record_unlock_attempt(request, success=True, profile=profile)
                 if not DEBUG:
                     # Make sure we unlock this only when debug mode is off.
                     unlock()
                 return HttpResponse(json.dumps({"message": "SUCCESS"}), status=200)
             else:
-                if Profile.objects.filter(authToken=givenauthtoken).count() > 0:
-                    record_unlock_attempt(request, success=False, profile=Profile.objects.get(authToken=givenauthtoken))
+                if prof_count > 0:
+                    record_unlock_attempt(request, success=False, profile=profile)
                 else:
                     record_unlock_attempt(request, success=False)
                 return HttpResponse(json.dumps({"message": "UNAUTHORIZED"}), status=401)
@@ -167,23 +178,26 @@ def authenticateView(request):
 @csrf_exempt
 def getWearToken(request):
     if request.method == "POST":
-        if "authToken" not in request.POST or "pin" not in request.POST:
+        if "authToken" not in request.POST or "pin" not in request.POST or "device_profile_id" not in request.POST:
             return HttpResponse(json.dumps({"message": "INV_REQ"}), status=400)
 
         givenauthtoken = request.POST["authToken"]
         print givenauthtoken
         givenpin = request.POST["pin"]
+        givenid = request.POST["device_profile_id"]
+        profile = Profile.objects.filter(id=givenid)
+        # if Profile.objects.filter(authToken=givenauthtoken, pin=givenpin).count() > 0:
+        if profile.count() > 0:
+            prof = profile.get()
+            if pbkdf2_sha512.verify(givenauthtoken, prof.authToken) and pbkdf2_sha512.verify(givenpin, prof.pin):
+                wearToken = get_watch_token()
+                wearToken_crypt = pbkdf2_sha512.hash(wearToken)
+                prof.wearToken = wearToken_crypt
 
-        if Profile.objects.filter(authToken=givenauthtoken, pin=givenpin).count() > 0:
-            prof = Profile.objects.filter(authToken=givenauthtoken, pin=givenpin).get()
-
-            # If the Profile doesn't have a watch token, generate one and return it, else, get the already existing one.
-            if prof.wearToken:
-                return HttpResponse(json.dumps({"message": "SUCCESS", "wearToken": prof.wearToken}), status=200)
-            else:
-                prof.wearToken = get_watch_token()
                 prof.save()
-                return HttpResponse(json.dumps({"message": "SUCCESS", "wearToken": prof.wearToken}), status=200)
+                return HttpResponse(json.dumps({"message": "SUCCESS", "wearToken": wearToken}), status=200)
+            else:
+                return HttpResponse(json.dumps({"message": "UNAUTHORIZED"}), status=401)
         else:
             return HttpResponse(json.dumps({"message": "UNAUTHORIZED"}), status=401)
     else:
@@ -193,9 +207,10 @@ def getWearToken(request):
 @csrf_exempt
 def changePin(request):
     if request.method == "POST":
-        if "authToken" not in request.POST or "oldPin" not in request.POST or "newPin" not in request.POST:
+        if "device_profile_id" not in request.POST or "authToken" not in request.POST or "oldPin" not in request.POST or "newPin" not in request.POST:
             return HttpResponse(json.dumps({"message": "INV_REQ"}), status=400)
         else:
+            givenid = request.POST["device_profile_id"]
             token = request.POST["authToken"]
             oldpin = request.POST["oldPin"]
             newpin = request.POST["newPin"]
@@ -205,11 +220,16 @@ def changePin(request):
                 return HttpResponse(json.dumps({"message": "UNAUTHORIZED"}), status=401)
 
             #Searching for a profile with authToken and pin matching the values sent in POST request
-            if Profile.objects.filter(authToken=token, pin=oldpin).count() > 0:
-                tobeupdate = Profile.objects.get(authToken=token, pin=oldpin)
-                tobeupdate.pin = newpin
-                tobeupdate.save()
-                return HttpResponse(json.dumps({"message": "SUCCESS"}), status=200)
+            profile = Profile.objects.filter(id=givenid)
+            # if Profile.objects.filter(authToken=token, pin=oldpin).count() > 0:
+            if profile.count() > 0:
+                profile = profile.get()
+                if pbkdf2_sha512.verify(token, profile.authToken) and pbkdf2_sha512.verify(oldpin, profile.pin):
+                    profile.pin = pbkdf2_sha512.hash(newpin)
+                    profile.save()
+                    return HttpResponse(json.dumps({"message": "SUCCESS"}), status=200)
+                else:
+                    return HttpResponse(json.dumps({"message": "UNAUTHORIZED"}), status=401)
             else:
                 return HttpResponse(json.dumps({"message": "UNAUTHORIZED"}), status=401)
     else:
