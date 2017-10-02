@@ -148,15 +148,12 @@ def authenticateView(request):
             if prof_count > 0:
                 profile = profile.get()
                 if passwordless and wear_unlock:
-                    # if Profile.objects.filter(authToken=givenauthtoken, wearToken=givenweartoken).count() > 0:
                     if pbkdf2_sha512.verify(givenauthtoken, profile.authToken) and pbkdf2_sha512.verify(givenweartoken, profile.wearToken):
                         authenticated = True
                 elif passwordless and not wear_unlock:
-                    # if Profile.objects.filter(authToken=givenauthtoken).count() > 0:
                     if pbkdf2_sha512.verify(givenauthtoken, profile.authToken):
                         authenticated = True
                 else:
-                    # if Profile.objects.filter(pin=givenpin, authToken=givenauthtoken).count() > 0:
                     if pbkdf2_sha512.verify(givenpin, profile.pin) and pbkdf2_sha512.verify(givenauthtoken, profile.authToken):
                         authenticated = True
 
@@ -186,7 +183,6 @@ def getWearToken(request):
         givenpin = request.POST["pin"]
         givenid = request.POST["device_profile_id"]
         profile = Profile.objects.filter(id=givenid)
-        # if Profile.objects.filter(authToken=givenauthtoken, pin=givenpin).count() > 0:
         if profile.count() > 0:
             prof = profile.get()
             if pbkdf2_sha512.verify(givenauthtoken, prof.authToken) and pbkdf2_sha512.verify(givenpin, prof.pin):
@@ -219,9 +215,8 @@ def changePin(request):
             if len(oldpin) != 6 or len(newpin) != 6:
                 return HttpResponse(json.dumps({"message": "UNAUTHORIZED"}), status=401)
 
-            #Searching for a profile with authToken and pin matching the values sent in POST request
+            #Searching for a profile with id matching the given id from the POST request.
             profile = Profile.objects.filter(id=givenid)
-            # if Profile.objects.filter(authToken=token, pin=oldpin).count() > 0:
             if profile.count() > 0:
                 profile = profile.get()
                 if pbkdf2_sha512.verify(token, profile.authToken) and pbkdf2_sha512.verify(oldpin, profile.pin):
