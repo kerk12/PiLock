@@ -14,6 +14,7 @@ from django.contrib.auth.decorators import login_required
 import json
 from PiLock.settings import DEBUG
 from main.PiLockUnlockScripts.unlock import unlock
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 
 # Create your views here.
 def login_acp(request):
@@ -48,7 +49,17 @@ def index(request):
 
 @login_required
 def access_log_home(request):
-    access_attempts = AccessAttempt.objects.all()
+    pages = Paginator(AccessAttempt.objects.all(), 20, allow_empty_first_page=True)
+
+    page = request.GET.get("p")
+    try:
+        access_attempts = pages.page(page)
+    except PageNotAnInteger:
+        access_attempts = pages.page(1)
+    except EmptyPage:
+        access_attempts = pages.page(pages.num_pages)
+
+    # This throws EmptyPage on render. Will need investigation.
     return render(request, "ACPAccessLog.html", {"access_attempts": access_attempts})
 
 @login_required
