@@ -6,6 +6,7 @@ from django.contrib.auth.models import User
 from django.shortcuts import render
 from django.shortcuts import redirect
 from main.models import AccessAttempt, Profile
+from .models import Notification
 from django.contrib.auth.decorators import login_required
 
 # Create your views here.
@@ -36,7 +37,8 @@ def login_acp(request):
 
 @login_required
 def index(request):
-    return render(request, "ACPIndex.html")
+    notifications = Notification.objects.all()
+    return render(request, "ACPIndex.html", {"notifications": notifications})
 
 @login_required
 def access_log_home(request):

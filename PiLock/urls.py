@@ -16,9 +16,13 @@ Including another URLconf
 """
 from django.conf.urls import url
 from django.contrib import admin
+from AdminCP.notifications import check_for_debug_mode
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^', include('main.urls')),
     url(r'^AdminCP/', include('AdminCP.urls')),
 ]
+
+# Run the debug mode check once at startup.
+check_for_debug_mode()

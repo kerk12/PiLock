@@ -7,12 +7,15 @@
 
 {% block main_page %}
 <div class="row row-ind">
-    <div class="col-sm-4">
+    <div class="col-sm-8">
         <h2>Notifications:</h2>
-        (Coming Soon...)
-    </div>
-    <div class="col-sm-4">
-        <!-- Empty, for now... -->
+        {% for note in notifications %}
+            {% if note.type == "DEBUG" %}
+                <div class="alert alert-warning" role="alert">
+                    <strong>Debug Mode Enabled!</strong> The unlock functionality has been disabled. Please turn off Debug mode in production.
+                </div>
+            {% endif %}
+        {% endfor %}
     </div>
     <div class="col-sm-4">
         <h1>
