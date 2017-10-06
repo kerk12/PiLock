@@ -1,4 +1,5 @@
 from django.conf.urls import url, include
+from django.db.utils import OperationalError
 """PiLock URL Configuration
 
 The `urlpatterns` list routes URLs to views. For more information please see:
@@ -25,4 +26,7 @@ urlpatterns = [
 ]
 
 # Run the debug mode check once at startup.
-check_for_debug_mode()
+try:
+    check_for_debug_mode()
+except OperationalError:  # Used when the DB hasn't been initialized yet. This prevents migration errors when there is no db created yet.
+    pass
