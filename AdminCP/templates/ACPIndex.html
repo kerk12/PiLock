@@ -9,17 +9,12 @@
 <div class="row row-ind">
     <div class="col-sm-8">
         <h2>Notifications:</h2>
+        {% if notifications.count == 0 %}
+            This is where notifications related to various issues with your PiLock installation (for example, updates, security issues, ...) will be shown. <br>
+            There are currently no notifications to be shown.
+        {% endif %}
         {% for note in notifications %}
-            {% if note.type == "DEBUG" %}
-                <div class="alert alert-warning" role="alert">
-                    <strong>Debug Mode Enabled!</strong> The unlock functionality has been disabled. Please turn off Debug mode in production.
-                </div>
-            {% endif %}
-            {% if note.type == "UPDATE" %}
-                <div class="alert alert-info" role="alert">
-                    <strong>Updater: </strong> {% if note.text %}{{ note.text }}{% else %} Update available!{% endif %}
-                </div>
-            {% endif %}
+            {{ note.html|safe }}
         {% endfor %}
     </div>
     <div class="col-sm-4">
