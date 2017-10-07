@@ -15,6 +15,11 @@
                     <strong>Debug Mode Enabled!</strong> The unlock functionality has been disabled. Please turn off Debug mode in production.
                 </div>
             {% endif %}
+            {% if note.type == "UPDATE" %}
+                <div class="alert alert-info" role="alert">
+                    <strong>Updater: </strong> {% if note.text %}{{ note.text }}{% else %} Update available!{% endif %}
+                </div>
+            {% endif %}
         {% endfor %}
     </div>
     <div class="col-sm-4">

@@ -13,4 +13,5 @@ class Notification(models.Model):
 
     # Only one notification created for each type.
     type = models.CharField(max_length=10, choices=TYPES, default="DEBUG", unique=True)
+    text = models.TextField(blank=True)
     created = models.DateTimeField(auto_now_add=True)
