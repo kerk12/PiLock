@@ -5,3 +5,4 @@ django-ipware
 django-bootstrap-form
 passlib
 requests
+django_cron

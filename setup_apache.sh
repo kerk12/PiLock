@@ -9,7 +9,7 @@ fi
 echo 'Installing required packages'
 sleep 2s
 apt-get update
-apt-get -y install apache2 libapache2-mod-wsgi python-pip
+apt-get -y install apache2 libapache2-mod-wsgi python-pip cron
 a2enmod wsgi
 
 echo 'Creating the project directory in /var/www and copying files...'

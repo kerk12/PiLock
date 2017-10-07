@@ -34,6 +34,9 @@ service apache2 restart
 echo 'Adding the www-data user to the dialout group (needed for the Serial Port to function)...'
 usermod -a -G dialout www-data
 
+echo 'Adding cron entry to the crontab.'
+(crontab -l ; echo '*/5 * * * * python /var/www/PiLock/manage.py runcrons') | crontab -
+
 echo 'Restarting the system in 5 seconds...'
 sleep 5s
 reboot

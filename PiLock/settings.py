@@ -74,6 +74,7 @@ INSTALLED_APPS = [
     'bootstrapform',
     'main',
     'AdminCP',
+    'django_cron',
 ]
 
 MIDDLEWARE = [
@@ -103,6 +104,11 @@ TEMPLATES = [
         },
     },
 ]
+
+CRON_CLASSES = [
+    "AdminCP.cron.UpdateCheckCron",
+]
+
 
 WSGI_APPLICATION = 'PiLock.wsgi.application'
 
