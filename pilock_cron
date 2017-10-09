@@ -1,0 +1,3 @@
+# PiLock Cron file
+# DO NOT EDIT
+*/5 * * * * www-data cd /var/www/PiLock && python ./manage.py runcrons

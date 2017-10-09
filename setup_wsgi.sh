@@ -35,7 +35,7 @@ echo 'Adding the www-data user to the dialout group (needed for the Serial Port 
 usermod -a -G dialout www-data
 
 echo 'Adding cron entry to the crontab.'
-(crontab -l ; echo '*/5 * * * * python /var/www/PiLock/manage.py runcrons') | crontab -
+cp pilock_cron /etc/cron.d/
 
 echo 'Restarting the system in 5 seconds...'
 sleep 5s
