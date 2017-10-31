@@ -11,4 +11,5 @@ urlpatterns = [
     url(r'^users/delete_profile', views.delete_profile, name="ACP-Users-DeleteProfile"),
     url(r'^users/delete/(?P<id_to_del>\d{1,3})$', views.delete_user),
     url(r'^users/delete', views.delete_user, name="ACP-Users-Delete"),
+    url(r'^unlock$', views.acp_unlock, name="ACP-Unlock"),
 ]

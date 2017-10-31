@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+
+{% block title %}Index - PiLock Admin{% endblock %}
+
+{% block current_page_title %}PiLock Admin{% endblock %}
+
+{% block main_page %}
+<div class="row row-ind">
+    You can click this button to send an unlock signal, directly from the AdminCP.
+    <div id="unlock_wrapper">
+        <!-- TODO Might change this later... -->
+        <button id="acp-unlock" class="btn btn-lg btn-primary">Unlock!</button>
+    </div>
+</div>
+<script>
+    $("#acp-unlock").click(function(){
+        $(this).attr("disabled", "disabled");
+        $.ajax({
+            type: "POST",
+            url: "{% url 'ACP-Unlock' %}",
+            data: {"unlock": "1", "csrfmiddlewaretoken": "{{ csrf_token }}"},
+            success: function(obj){
+                setTimeout(function(){
+                    $("#acp-unlock").removeAttr("disabled");
+                }, 7000);
+            }
+        });
+    });
+</script>
+{% endblock %}

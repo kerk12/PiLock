@@ -3,11 +3,14 @@ from __future__ import unicode_literals
 from .forms import LoginForm, CreateUserForm
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
-from django.shortcuts import render
+from django.shortcuts import render, HttpResponse
 from django.shortcuts import redirect
 from main.models import AccessAttempt, Profile
 from .models import Notification
 from django.contrib.auth.decorators import login_required
+import json
+from PiLock.settings import DEBUG
+from main.PiLockUnlockScripts.unlock import unlock
 
 # Create your views here.
 def login_acp(request):
@@ -83,4 +86,17 @@ def delete_profile(request, user_id=None):
         pass
     finally:
         return redirect("ACP-Users-index")
+
+@login_required
+def acp_unlock(request):
+    if request.method == "POST":
+        if "unlock" not in request.POST:
+            return HttpResponse(json.dumps({"message": "INV_REQ"}), status=400)
+
+        # TODO Might record the unlock attempt...
+        if not DEBUG:
+            unlock()
+        return HttpResponse(json.dumps({"message": "SUCCESS"}), status=200)
+    else:
+        return render(request, "ACPUnlock.html")
 
