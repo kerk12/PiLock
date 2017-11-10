@@ -19,7 +19,7 @@ class Notification(models.Model):
 
     TYPES_DEFAULT_TEXT = {
         "DEBUG": "The unlock functionality has been disabled. Please turn off Debug mode in production.",
-        "UPDATE": "Update available!",
+        "UPDATE": "<a href=\"https://github.com/kerk12/PiLock\">Update available!</a>",
         "SEC": " "
     }
 
