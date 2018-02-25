@@ -1,9 +1,12 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
+
+from django.http import JsonResponse
+
 from .forms import LoginForm, CreateUserForm
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
-from django.shortcuts import render, HttpResponse
+from django.shortcuts import render
 from django.shortcuts import redirect
 from main.models import AccessAttempt, Profile
 from .models import Notification
@@ -93,12 +96,12 @@ def delete_profile(request, user_id=None):
 def acp_unlock(request):
     if request.method == "POST":
         if "unlock" not in request.POST:
-            return HttpResponse(json.dumps({"message": "INV_REQ"}), status=400)
+            return JsonResponse({"message": "INV_REQ"}, status=400)
 
         # TODO Might record the unlock attempt...
         if not DEBUG:
             unlock()
-        return HttpResponse(json.dumps({"message": "SUCCESS"}), status=200)
+        return JsonResponse({"message": "SUCCESS"}, status=200)
     else:
         return render(request, "ACPUnlock.html")
 
