@@ -9,7 +9,7 @@ fi
 echo 'Installing required packages'
 sleep 2s
 apt-get update
-apt-get -y install apache2 libapache2-mod-wsgi python-pip cron
+apt-get -y install apache2 python3 libapache2-mod-wsgi-py3 python3-pip python3-venv cron
 a2enmod wsgi
 
 echo 'Creating the project directory in /var/www and copying files...'
@@ -21,7 +21,11 @@ chmod -R 700 /var/www/PiLock
 
 echo 'Installing Python Package requirements...'
 sleep 2s
-pip install -r requirements.txt
+echo 'Creating virtualenv...'
+python3 -m venv venv
+source venv/bin/activate
+pip3 install -r requirements.txt
+deactivate
 
 echo 'Please answer these questions, so that we can create an SSL certificate. Remember that the FQDN (or common name) will be the final address that the server will be available at.'
 sleep 3s
