@@ -82,7 +82,9 @@ def delete_user(request, id_to_del=None):
 def delete_profile(request, user_id=None):
     try:
         profile = Profile.objects.get(user=int(user_id)).delete()
-    except Profile.DoesNotExist, ValueError:
+    except Profile.DoesNotExist:
+        pass
+    except ValueError:
         pass
     finally:
         return redirect("ACP-Users-index")

@@ -4,8 +4,8 @@ from django.contrib.auth.models import User
 import random
 import json
 from django.contrib.auth import authenticate, login, logout
-from models import Profile, AccessAttempt
-from PiLockUnlockScripts.unlock import unlock
+from .models import Profile, AccessAttempt
+from .PiLockUnlockScripts.unlock import unlock
 import os, sys
 from PiLock.settings import getServerVersion, getRoot, BASE_DIR, DEBUG
 from django.utils.crypto import get_random_string
@@ -55,8 +55,7 @@ def parse_ip_to_model(request):
     ip = get_ip(request)
     if ip is None:
         return "0.0.0.0"
-    else:
-        return ip
+    return ip
 
 def record_login_attempt(request, success):
     access_attempt = AccessAttempt.objects.create(usernameEntered=request.POST["username"], successful=success,
@@ -107,9 +106,8 @@ def loginView(request):
             prof = Profile.objects.create(user=user, authToken=authToken_crypt, pin=pin_crypt)
             resp = {"message": "CREATED", "authToken": authToken, "pin": pin, "device_profile_id":prof.id}
             return HttpResponse(json.dumps(resp))
-        else:
-            record_login_attempt(request, success=False)
-            return HttpResponse(json.dumps({"message": "INV_CRED"}), status=401)
+        record_login_attempt(request, success=False)
+        return HttpResponse(json.dumps({"message": "INV_CRED"}), status=401)
     else:
         return HttpResponse(json.dumps({"message": "INV_REQ"}), status=400)
 
@@ -179,7 +177,7 @@ def getWearToken(request):
             return HttpResponse(json.dumps({"message": "INV_REQ"}), status=400)
 
         givenauthtoken = request.POST["authToken"]
-        print givenauthtoken
+        print(givenauthtoken)
         givenpin = request.POST["pin"]
         givenid = request.POST["device_profile_id"]
         profile = Profile.objects.filter(id=givenid)

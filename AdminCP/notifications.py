@@ -1,7 +1,7 @@
-from models import Notification
+from .models import Notification
 from PiLock.settings import DEBUG
 from django.db import IntegrityError
-from update_checker import UpdateChecker, UpdateCheckError
+from .update_checker import UpdateChecker, UpdateCheckError
 
 
 def check_for_debug_mode():
