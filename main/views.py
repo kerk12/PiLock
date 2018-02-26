@@ -172,13 +172,13 @@ def authenticateView(request):
                 # Make sure we unlock this only when debug mode is off.
                 unlock()
             return JsonResponse({"message": "SUCCESS"}, status=200)
-        else:
-            # Check if the auth token matches to any profile.
-            # If it does, record the unsuccessful profile to the unlock attempt.
-            record_unlock_attempt(request, success=False, profile=profile) if prof_count > 0 else \
-            record_unlock_attempt(request, success=False)
 
-            return JsonResponse({"message": "UNAUTHORIZED"}, status=401)
+        # Check if the auth token matches to any profile.
+        # If it does, record the unsuccessful profile to the unlock attempt.
+        record_unlock_attempt(request, success=False, profile=profile) if prof_count > 0 else \
+        record_unlock_attempt(request, success=False)
+
+        return JsonResponse({"message": "UNAUTHORIZED"}, status=401)
     return JsonResponse({"message": "INV_REQ"}, status=400)
 
 @csrf_exempt
