@@ -188,7 +188,6 @@ def getWearToken(request):
             return JsonResponse({"message": "INV_REQ"}, status=400)
 
         givenauthtoken = request.POST["authToken"]
-        print(givenauthtoken)
         givenpin = request.POST["pin"]
         givenid = request.POST["device_profile_id"]
         profile = Profile.objects.filter(id=givenid)
@@ -201,10 +200,7 @@ def getWearToken(request):
 
                 prof.save()
                 return JsonResponse({"message": "SUCCESS", "wearToken": wearToken}, status=200)
-            else:
-                return JsonResponse({"message": "UNAUTHORIZED"}, status=401)
-        else:
-            return JsonResponse({"message": "UNAUTHORIZED"}, status=401)
+        return JsonResponse({"message": "UNAUTHORIZED"}, status=401)
     else:
         return JsonResponse({"message": "INV_REQ"}, status=400)
 
