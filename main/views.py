@@ -120,56 +120,66 @@ def authenticateView(request):
     if request.method == "POST":  # Same as above, only accept POST requests
         if "authToken" not in request.POST or "device_profile_id" not in request.POST:  # Check if the AuthToken and the ID is inside the POST request.
             return JsonResponse({"message": "INV_REQ"}, status=400)
-        else:
-            givenid = request.POST["device_profile_id"]
-            givenauthtoken = request.POST["authToken"]
-            if "pin" in request.POST:
-                passwordless = False
-                givenpin = request.POST["pin"]
 
-                # Check the length of the PIN.
-                # Note to self: NEVER do work when tired!
-                if len(givenpin) != 6:
-                    record_unlock_attempt(request, success=False)
-                    return JsonResponse({"message": "UNAUTHORIZED"}, status=401)
-            elif "wearToken" in request.POST:
-                passwordless = True
-                wear_unlock = True
+        givenid = request.POST["device_profile_id"]
+        givenauthtoken = request.POST["authToken"]
 
-                givenweartoken = request.POST["wearToken"]
-            else:
-                passwordless = True
-                wear_unlock = False
+        # 0. Check the type of authentication request.
+        # If it has a pin inside, it's a normal one.
+        if "pin" in request.POST:
+            passwordless = False
+            givenpin = request.POST["pin"]
 
-            authenticated = False
-            profile = Profile.objects.filter(id=givenid)
-            prof_count = profile.count()
-            if prof_count > 0:
-                profile = profile.get()
-                if passwordless and wear_unlock:
-                    if pbkdf2_sha512.verify(givenauthtoken, profile.authToken) and pbkdf2_sha512.verify(givenweartoken, profile.wearToken):
-                        authenticated = True
-                elif passwordless and not wear_unlock:
-                    if pbkdf2_sha512.verify(givenauthtoken, profile.authToken):
-                        authenticated = True
-                else:
-                    if pbkdf2_sha512.verify(givenpin, profile.pin) and pbkdf2_sha512.verify(givenauthtoken, profile.authToken):
-                        authenticated = True
-
-            if authenticated:
-                record_unlock_attempt(request, success=True, profile=profile)
-                if not DEBUG:
-                    # Make sure we unlock this only when debug mode is off.
-                    unlock()
-                return JsonResponse({"message": "SUCCESS"}, status=200)
-            else:
-                if prof_count > 0:
-                    record_unlock_attempt(request, success=False, profile=profile)
-                else:
-                    record_unlock_attempt(request, success=False)
+            # Check the length of the PIN.
+            # Note to self: NEVER do work when tired!
+            if len(givenpin) != 6:
+                record_unlock_attempt(request, success=False)
                 return JsonResponse({"message": "UNAUTHORIZED"}, status=401)
-    else:
-        return JsonResponse({"message": "INV_REQ"}, status=400)
+        elif "wearToken" in request.POST:
+            # If it has a wear token inside, it's a wear unlock.
+            passwordless = True
+            wear_unlock = True
+
+            givenweartoken = request.POST["wearToken"]
+        else:
+            # If it has none, it's a passwordless unlock.
+            passwordless = True
+            wear_unlock = False
+
+        authenticated = False
+        profile = Profile.objects.filter(id=givenid)
+        prof_count = profile.count()
+
+        if prof_count > 0:
+            profile = profile.get()
+            auth_token_success = pbkdf2_sha512.verify(givenauthtoken, profile.authToken)
+
+            if auth_token_success:  # First of all, validate the Auth Token.
+                # If it authenticates successfully...
+                if passwordless and wear_unlock:  # And it's a wear unlock, validate the wear token.
+                    if pbkdf2_sha512.verify(givenweartoken, profile.wearToken):
+                        authenticated = True
+                elif passwordless and not wear_unlock:  # If it's a passwordless unlock, check if there is a PIN registered on the device profile...
+                    if not profile.pin:  # If there is, the user didn't provide it so throw 401.
+                        authenticated = True
+                else:
+                    if pbkdf2_sha512.verify(givenpin, profile.pin):  # Else, verify the pin.
+                        authenticated = True
+
+        if authenticated:
+            record_unlock_attempt(request, success=True, profile=profile)
+            if not DEBUG:
+                # Make sure we unlock this only when debug mode is off.
+                unlock()
+            return JsonResponse({"message": "SUCCESS"}, status=200)
+        else:
+            # Check if the auth token matches to any profile.
+            # If it does, record the unsuccessful profile to the unlock attempt.
+            record_unlock_attempt(request, success=False, profile=profile) if prof_count > 0 else \
+            record_unlock_attempt(request, success=False)
+
+            return JsonResponse({"message": "UNAUTHORIZED"}, status=401)
+    return JsonResponse({"message": "INV_REQ"}, status=400)
 
 @csrf_exempt
 def getWearToken(request):
