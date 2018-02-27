@@ -49,7 +49,7 @@ def index(request):
 
 @login_required
 def access_log_home(request):
-    pages = Paginator(AccessAttempt.objects.all(), 20, allow_empty_first_page=True)
+    pages = Paginator(AccessAttempt.objects.all().order_by("-datetime"), 20, allow_empty_first_page=True)
 
     page = request.GET.get("p")
     access_attempts = pages.get_page(page)
