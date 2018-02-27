@@ -52,12 +52,7 @@ def access_log_home(request):
     pages = Paginator(AccessAttempt.objects.all(), 20, allow_empty_first_page=True)
 
     page = request.GET.get("p")
-    try:
-        access_attempts = pages.page(page)
-    except PageNotAnInteger:
-        access_attempts = pages.page(1)
-    except EmptyPage:
-        access_attempts = pages.page(pages.num_pages)
+    access_attempts = pages.get_page(page)
 
     # This throws EmptyPage on render. Will need investigation.
     return render(request, "ACPAccessLog.html", {"access_attempts": access_attempts})
