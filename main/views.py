@@ -237,5 +237,4 @@ def index(request):
     # Returns response with server's status (AKA: Heartbeat)
     if ReadConfig()["enabled"]:
         return JsonResponse({"status": "ALIVE", "version": getServerVersion()})
-    else:
-        return JsonResponse({"status": "LOCKED", "version": getServerVersion()})
+    return JsonResponse({"status": "LOCKED", "version": getServerVersion()})
