@@ -210,30 +210,26 @@ def changePin(request):
     if request.method == "POST":
         if "device_profile_id" not in request.POST or "authToken" not in request.POST or "oldPin" not in request.POST or "newPin" not in request.POST:
             return JsonResponse({"message": "INV_REQ"}, status=400)
-        else:
-            givenid = request.POST["device_profile_id"]
-            token = request.POST["authToken"]
-            oldpin = request.POST["oldPin"]
-            newpin = request.POST["newPin"]
 
-            # Check the length of both PINs.
-            if len(oldpin) != 6 or len(newpin) != 6:
-                return JsonResponse(json.dumps({"message": "UNAUTHORIZED"}), status=401)
+        givenid = request.POST["device_profile_id"]
+        token = request.POST["authToken"]
+        oldpin = request.POST["oldPin"]
+        newpin = request.POST["newPin"]
 
-            #Searching for a profile with id matching the given id from the POST request.
-            profile = Profile.objects.filter(id=givenid)
-            if profile.count() > 0:
-                profile = profile.get()
-                if pbkdf2_sha512.verify(token, profile.authToken) and pbkdf2_sha512.verify(oldpin, profile.pin):
-                    profile.pin = pbkdf2_sha512.hash(newpin)
-                    profile.save()
-                    return JsonResponse({"message": "SUCCESS"}, status=200)
-                else:
-                    return JsonResponse({"message": "UNAUTHORIZED"}, status=401)
-            else:
-                return JsonResponse({"message": "UNAUTHORIZED"}, status=401)
-    else:
-        return JsonResponse({"message": "INV_REQ"}, status=400)
+        # Check the length of both PINs.
+        if len(oldpin) != 6 or len(newpin) != 6:
+            return JsonResponse(json.dumps({"message": "UNAUTHORIZED"}), status=401)
+
+        #Searching for a profile with id matching the given id from the POST request.
+        profile = Profile.objects.filter(id=givenid)
+        if profile.count() > 0:
+            profile = profile.get()
+            if pbkdf2_sha512.verify(token, profile.authToken) and pbkdf2_sha512.verify(oldpin, profile.pin):
+                profile.pin = pbkdf2_sha512.hash(newpin)
+                profile.save()
+                return JsonResponse({"message": "SUCCESS"}, status=200)
+        return JsonResponse({"message": "UNAUTHORIZED"}, status=401)
+    return JsonResponse({"message": "INV_REQ"}, status=400)
 
 
 def index(request):
