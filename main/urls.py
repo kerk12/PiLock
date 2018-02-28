@@ -1,10 +1,11 @@
-from django.conf.urls import url
+from django.urls import path
+
 from . import views
 
 urlpatterns = [
-    url(r"^login$", views.loginView, name="Login"),
-    url(r"^authentication", views.authenticateView, name="Authentication"),
-    url(r'^changepin', views.changePin, name="ChangePin"),
-    url(r'^weartoken', views.getWearToken, name="WearToken"),
-    url(r'^$', views.index)
+    path("login", views.loginView, name="Login"),
+    path("authentication", views.authenticateView, name="Authentication"),
+    path('changepin', views.changePin, name="ChangePin"),
+    path('weartoken', views.getWearToken, name="WearToken"),
+    path(r'', views.index)
 ]
