@@ -60,6 +60,7 @@ def users_index(request):
 
 @login_required
 def create_user(request):
+    form = CreateUserForm()
     if request.method == "POST":
         form = CreateUserForm(request.POST)
         if form.is_valid():
@@ -68,11 +69,8 @@ def create_user(request):
             user.set_password(cd["password"])
             user.save()
             return redirect("ACP-Users-index")
-        else:
-            return render(request, "ACPUserCreate.html", {"form": form})
-    else:
-        form = CreateUserForm()
         return render(request, "ACPUserCreate.html", {"form": form})
+    return render(request, "ACPUserCreate.html", {"form": form})
 
 @login_required
 def delete_user(request, id_to_del=None):
