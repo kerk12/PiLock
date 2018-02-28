@@ -4,6 +4,10 @@ before_script:
 stages:
   - test
 
+variables:
+  GIT_SUBMODULE_STRATEGY: recursive
+
+
 tests:
   stage: test
   script:
