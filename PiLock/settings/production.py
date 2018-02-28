@@ -1,3 +1,12 @@
+"""
+PiLock Production Settings
+
+To be used in Production only.
+
+These settings disable debug mode and enable HSTS, SSL redirection and session cookie encryption.
+
+"""
+
 from .base import *
 
 DEBUG = False
@@ -7,10 +16,8 @@ DEBUG = False
 SECURE_HSTS_SECONDS = 63072000
 
 # SSL Redirecting
-# CAUTION: Needs to be set to True when using SSL. This will redirect all the traffic to HTTPS.
-# Set to False when you are not using SSL.
 SECURE_SSL_REDIRECT = True
 
 # Secure session cookie
-# Encrypts session cookies. Recommended: True
+# Encrypts session cookies.
 SESSION_COOKIE_SECURE = True
