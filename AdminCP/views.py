@@ -102,6 +102,5 @@ def acp_unlock(request):
         if not DEBUG:
             unlock()
         return JsonResponse({"message": "SUCCESS"}, status=200)
-    else:
-        return render(request, "ACPUnlock.html")
+    return render(request, "ACPUnlock.html")
 
