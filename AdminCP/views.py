@@ -33,8 +33,7 @@ def login_acp(request):
                 if user.is_staff:
                     login(request, user)
                     return redirect("ACP-index")
-                else:
-                    return render(request, "ACPLogin.html", {"error": "The user you are trying to login as is not a staff member."}, status=403)
+                return render(request, "ACPLogin.html", {"error": "The user you are trying to login as is not a staff member."}, status=403)
         return render(request, "ACPLogin.html", {"error": "Invalid username and/or password."}, status=401)
     return render(request, "ACPLogin.html")
 
