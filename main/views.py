@@ -8,7 +8,8 @@ from django.contrib.auth import authenticate, login, logout
 from .models import Profile, AccessAttempt
 from .PiLockUnlockScripts.unlock import unlock
 import os, sys
-from PiLock.settings import getServerVersion, getRoot, BASE_DIR, DEBUG
+from PiLock.settings.base import getServerVersion, getRoot
+from django.conf import settings
 from django.utils.crypto import get_random_string
 import yaml
 from ipware.ip import get_ip
@@ -16,7 +17,7 @@ from passlib.hash import pbkdf2_sha512
 # Create your views here.
 
 def ReadConfig():
-    fin = open(BASE_DIR+"/config.yml", "r")
+    fin = open(settings.BASE_DIR+"/config.yml", "r")
     conf = yaml.load(fin)
     fin.close()
     return conf
@@ -168,7 +169,7 @@ def authenticateView(request):
 
         if authenticated:
             record_unlock_attempt(request, success=True, profile=profile)
-            if not DEBUG:
+            if not settings.DEBUG:
                 # Make sure we unlock this only when debug mode is off.
                 unlock()
             return JsonResponse({"message": "SUCCESS"}, status=200)

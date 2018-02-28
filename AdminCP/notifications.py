@@ -1,11 +1,11 @@
 from .models import Notification
-from PiLock.settings import DEBUG
+from django.conf import settings
 from django.db import IntegrityError
 from .update_checker import UpdateChecker, UpdateCheckError
 
 
 def check_for_debug_mode():
-    if DEBUG:
+    if settings.DEBUG:
         create_notification("DEBUG")
     else:
         delete_notification("DEBUG")

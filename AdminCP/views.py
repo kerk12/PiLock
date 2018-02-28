@@ -12,7 +12,7 @@ from main.models import AccessAttempt, Profile
 from .models import Notification
 from django.contrib.auth.decorators import login_required
 import json
-from PiLock.settings import DEBUG
+from django.conf import settings
 from main.PiLockUnlockScripts.unlock import unlock
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 
@@ -98,7 +98,7 @@ def acp_unlock(request):
             return JsonResponse({"message": "INV_REQ"}, status=400)
 
         # TODO Might record the unlock attempt...
-        if not DEBUG:
+        if not settings.DEBUG:
             unlock()
         return JsonResponse({"message": "SUCCESS"}, status=200)
     return render(request, "ACPUnlock.html")
