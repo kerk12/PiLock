@@ -1,0 +1,12 @@
+before_script:
+  - pip3 install -r requirements.txt
+
+stages:
+  - test
+
+tests:
+  stage: test
+  script:
+    - python3 ./manage.py test --settings=PiLock.settings.debug
+  tags:
+    - django
