@@ -1,6 +1,6 @@
 from .base import *
 
-DEBUG = True
+DEBUG = False
 
 # HSTS: Change this to the max age defined by the server.
 # Comment it to disable HSTS. (NOT recommended)
