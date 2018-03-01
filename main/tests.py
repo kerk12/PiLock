@@ -65,3 +65,20 @@ class PiLockMainTestCase(TestCase):
         self.assertEqual(req.status_code, 401)
         resp = req.json()
         self.assertEqual(resp["message"], "UNAUTHORIZED")
+
+        # Random PIN with random length
+        req = self.c.post("/authentication",
+                          data={"authToken": authToken, "pin": ''.join(random.choice(string.ascii_letters) for _ in range(random.randint(0, 100))),
+                                "device_profile_id": device_profile_id})
+        self.assertEqual(req.status_code, 401)
+        resp = req.json()
+        self.assertEqual(resp["message"], "UNAUTHORIZED")
+
+    def test_invalid_login(self):
+        req = self.c.post("/login", data={"username": "testUser", "password": "".join(random.choice(string.ascii_letters) for _ in range(random.randint(0,100)))})
+
+        self.assertEqual(req.status_code, 401)
+        resp = req.json()
+
+        self.assertEqual(resp["message"], "INV_CRED")
+
