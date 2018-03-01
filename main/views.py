@@ -109,9 +109,9 @@ def loginView(request):
             resp = {"message": "CREATED", "authToken": authToken, "pin": pin, "device_profile_id":prof.id}
             return JsonResponse(resp)
         record_login_attempt(request, success=False)
-        return JsonResponse(json.dumps({"message": "INV_CRED"}), status=401)
+        return JsonResponse({"message": "INV_CRED"}, status=401)
     else:
-        return JsonResponse(json.dumps({"message": "INV_REQ"}), status=400)
+        return JsonResponse({"message": "INV_REQ"}, status=400)
 
 
 @csrf_exempt
@@ -219,7 +219,7 @@ def changePin(request):
 
         # Check the length of both PINs.
         if len(oldpin) != 6 or len(newpin) != 6:
-            return JsonResponse(json.dumps({"message": "UNAUTHORIZED"}), status=401)
+            return JsonResponse({"message": "UNAUTHORIZED"}, status=401)
 
         #Searching for a profile with id matching the given id from the POST request.
         profile = Profile.objects.filter(id=givenid)
