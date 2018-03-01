@@ -4,6 +4,9 @@
 ### A homemade Raspberry Pi & Arduino Controlled Door lock mechanism.
 Developed by Kyriakos Giannakis (kerk12gr@gmail.com).
 
+[![Build Status](https://travis-ci.org/kerk12/PiLock.svg?branch=master)](https://travis-ci.org/kerk12/PiLock)
+
+
 ### Licence:
 The code for this project is licenced under the GPL V3 Licence. 
 
