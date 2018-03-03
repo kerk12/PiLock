@@ -6,6 +6,7 @@ Developed by Kyriakos Giannakis (kerk12gr@gmail.com).
 
 [![Build Status](https://travis-ci.org/kerk12/PiLock.svg?branch=master)](https://travis-ci.org/kerk12/PiLock)
 
+#### Current Stable Version: 0.3.1
 
 ### Licence:
 The code for this project is licenced under the GPL V3 Licence. 
