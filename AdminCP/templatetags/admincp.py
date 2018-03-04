@@ -1,5 +1,5 @@
 from django import template
-from PiLock.settings import getServerVersion
+from PiLock.settings.base import getServerVersion
 register = template.Library()
 
 @register.simple_tag

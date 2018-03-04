@@ -1,13 +1,15 @@
+from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.models import User
 import random
 import json
 from django.contrib.auth import authenticate, login, logout
-from models import Profile, AccessAttempt
-from PiLockUnlockScripts.unlock import unlock
+from .models import Profile, AccessAttempt
+from .PiLockUnlockScripts.unlock import unlock
 import os, sys
-from PiLock.settings import getServerVersion, getRoot, BASE_DIR, DEBUG
+from PiLock.settings.base import getServerVersion, getRoot
+from django.conf import settings
 from django.utils.crypto import get_random_string
 import yaml
 from ipware.ip import get_ip
@@ -15,7 +17,7 @@ from passlib.hash import pbkdf2_sha512
 # Create your views here.
 
 def ReadConfig():
-    fin = open(BASE_DIR+"/config.yml", "r")
+    fin = open(settings.BASE_DIR+"/config.yml", "r")
     conf = yaml.load(fin)
     fin.close()
     return conf
@@ -55,8 +57,7 @@ def parse_ip_to_model(request):
     ip = get_ip(request)
     if ip is None:
         return "0.0.0.0"
-    else:
-        return ip
+    return ip
 
 def record_login_attempt(request, success):
     access_attempt = AccessAttempt.objects.create(usernameEntered=request.POST["username"], successful=success,
@@ -78,10 +79,10 @@ def loginView(request):
     # else kicks the user out.#
     if request.method == "POST":  # Only post requests are accepted.
         if "username" not in request.POST or "password" not in request.POST:
-            return HttpResponse(json.dumps({"message": "INV_REQ"}), status=400)
+            return JsonResponse({"message": "INV_REQ"}, status=400)
 
         if len(request.POST["username"]) > 150:
-            return HttpResponse(json.dumps({"message": "INV_REQ"}), status=400)
+            return JsonResponse({"message": "INV_REQ"}, status=400)
 
         user = authenticate(username=request.POST["username"],
                             password=request.POST["password"])  # Authenticate the user
@@ -90,7 +91,7 @@ def loginView(request):
             record_login_attempt(request, success=True)
             if Profile.objects.filter(user=user).count() > 0:
                 # Check if the profile already exists
-                return HttpResponse(json.dumps({"message": "PROFILE_REGISTERED"}))
+                return JsonResponse({"message": "PROFILE_REGISTERED"})
             # Generate new random auth token
             authToken = get_auth_token()
             authToken_crypt = pbkdf2_sha512.hash(authToken)
@@ -99,19 +100,18 @@ def loginView(request):
                 # The user requested passwordless unlocks. Create new profile without a PIN.
                 prof = Profile.objects.create(user=user, authToken=authToken_crypt)
                 resp = {"message": "CREATED", "authToken": authToken, "device_profile_id":prof.id}
-                return HttpResponse(json.dumps(resp))
+                return JsonResponse(resp)
 
             pin = get_random_pin()
             pin_crypt = pbkdf2_sha512.hash(pin)
             # Create a new profile for the user.
             prof = Profile.objects.create(user=user, authToken=authToken_crypt, pin=pin_crypt)
             resp = {"message": "CREATED", "authToken": authToken, "pin": pin, "device_profile_id":prof.id}
-            return HttpResponse(json.dumps(resp))
-        else:
-            record_login_attempt(request, success=False)
-            return HttpResponse(json.dumps({"message": "INV_CRED"}), status=401)
+            return JsonResponse(resp)
+        record_login_attempt(request, success=False)
+        return JsonResponse({"message": "INV_CRED"}, status=401)
     else:
-        return HttpResponse(json.dumps({"message": "INV_REQ"}), status=400)
+        return JsonResponse({"message": "INV_REQ"}, status=400)
 
 
 @csrf_exempt
@@ -120,66 +120,75 @@ def authenticateView(request):
     # Originally coded by Thanos Ageridis
     if request.method == "POST":  # Same as above, only accept POST requests
         if "authToken" not in request.POST or "device_profile_id" not in request.POST:  # Check if the AuthToken and the ID is inside the POST request.
-            return HttpResponse(json.dumps({"message": "INV_REQ"}), status=400)
+            return JsonResponse({"message": "INV_REQ"}, status=400)
+
+        givenid = request.POST["device_profile_id"]
+        givenauthtoken = request.POST["authToken"]
+
+        # 0. Check the type of authentication request.
+        # If it has a pin inside, it's a normal one.
+        if "pin" in request.POST:
+            passwordless = False
+            givenpin = request.POST["pin"]
+
+            # Check the length of the PIN.
+            # Note to self: NEVER do work when tired!
+            if len(givenpin) != 6:
+                record_unlock_attempt(request, success=False)
+                return JsonResponse({"message": "UNAUTHORIZED"}, status=401)
+        elif "wearToken" in request.POST:
+            # If it has a wear token inside, it's a wear unlock.
+            passwordless = True
+            wear_unlock = True
+
+            givenweartoken = request.POST["wearToken"]
         else:
-            givenid = request.POST["device_profile_id"]
-            givenauthtoken = request.POST["authToken"]
-            if "pin" in request.POST:
-                passwordless = False
-                givenpin = request.POST["pin"]
+            # If it has none, it's a passwordless unlock.
+            passwordless = True
+            wear_unlock = False
 
-                # Check the length of the PIN.
-                # Note to self: NEVER do work when tired!
-                if len(givenpin) != 6:
-                    record_unlock_attempt(request, success=False)
-                    return HttpResponse(json.dumps({"message": "UNAUTHORIZED"}), status=401)
-            elif "wearToken" in request.POST:
-                passwordless = True
-                wear_unlock = True
+        authenticated = False
+        profile = Profile.objects.filter(id=givenid)
+        prof_count = profile.count()
 
-                givenweartoken = request.POST["wearToken"]
-            else:
-                passwordless = True
-                wear_unlock = False
+        if prof_count > 0:
+            profile = profile.get()
+            auth_token_success = pbkdf2_sha512.verify(givenauthtoken, profile.authToken)
 
-            authenticated = False
-            profile = Profile.objects.filter(id=givenid)
-            prof_count = profile.count()
-            if prof_count > 0:
-                profile = profile.get()
-                if passwordless and wear_unlock:
-                    if pbkdf2_sha512.verify(givenauthtoken, profile.authToken) and pbkdf2_sha512.verify(givenweartoken, profile.wearToken):
+            if auth_token_success:  # First of all, validate the Auth Token.
+                # If it authenticates successfully...
+                if passwordless and wear_unlock:  # And it's a wear unlock, validate the wear token.
+                    if pbkdf2_sha512.verify(givenweartoken, profile.wearToken):
                         authenticated = True
-                elif passwordless and not wear_unlock:
-                    if pbkdf2_sha512.verify(givenauthtoken, profile.authToken):
+                elif passwordless and not wear_unlock:  # If it's a passwordless unlock, check if there is a PIN registered on the device profile...
+                    if not profile.pin:  # If there is, the user didn't provide it so throw 401.
                         authenticated = True
                 else:
-                    if pbkdf2_sha512.verify(givenpin, profile.pin) and pbkdf2_sha512.verify(givenauthtoken, profile.authToken):
+                    if pbkdf2_sha512.verify(givenpin, profile.pin):  # Else, verify the pin.
                         authenticated = True
 
-            if authenticated:
-                record_unlock_attempt(request, success=True, profile=profile)
-                if not DEBUG:
-                    # Make sure we unlock this only when debug mode is off.
-                    unlock()
-                return HttpResponse(json.dumps({"message": "SUCCESS"}), status=200)
-            else:
-                if prof_count > 0:
-                    record_unlock_attempt(request, success=False, profile=profile)
-                else:
-                    record_unlock_attempt(request, success=False)
-                return HttpResponse(json.dumps({"message": "UNAUTHORIZED"}), status=401)
-    else:
-        return HttpResponse(json.dumps({"message": "INV_REQ"}), status=400)
+        if authenticated:
+            record_unlock_attempt(request, success=True, profile=profile)
+            if not settings.DEBUG:
+                # Make sure we unlock this only when debug mode is off.
+                unlock()
+            return JsonResponse({"message": "SUCCESS"}, status=200)
+
+        # Check if the auth token matches to any profile.
+        # If it does, record the unsuccessful profile to the unlock attempt.
+        record_unlock_attempt(request, success=False, profile=profile) if prof_count > 0 else \
+        record_unlock_attempt(request, success=False)
+
+        return JsonResponse({"message": "UNAUTHORIZED"}, status=401)
+    return JsonResponse({"message": "INV_REQ"}, status=400)
 
 @csrf_exempt
 def getWearToken(request):
     if request.method == "POST":
         if "authToken" not in request.POST or "pin" not in request.POST or "device_profile_id" not in request.POST:
-            return HttpResponse(json.dumps({"message": "INV_REQ"}), status=400)
+            return JsonResponse({"message": "INV_REQ"}, status=400)
 
         givenauthtoken = request.POST["authToken"]
-        print givenauthtoken
         givenpin = request.POST["pin"]
         givenid = request.POST["device_profile_id"]
         profile = Profile.objects.filter(id=givenid)
@@ -191,50 +200,42 @@ def getWearToken(request):
                 prof.wearToken = wearToken_crypt
 
                 prof.save()
-                return HttpResponse(json.dumps({"message": "SUCCESS", "wearToken": wearToken}), status=200)
-            else:
-                return HttpResponse(json.dumps({"message": "UNAUTHORIZED"}), status=401)
-        else:
-            return HttpResponse(json.dumps({"message": "UNAUTHORIZED"}), status=401)
+                return JsonResponse({"message": "SUCCESS", "wearToken": wearToken}, status=200)
+        return JsonResponse({"message": "UNAUTHORIZED"}, status=401)
     else:
-        return HttpResponse(json.dumps({"message": "INV_REQ"}), status=400)
+        return JsonResponse({"message": "INV_REQ"}, status=400)
 
 # NOTE: Access attempt tracking not possible yet for PIN changing.
 @csrf_exempt
 def changePin(request):
     if request.method == "POST":
         if "device_profile_id" not in request.POST or "authToken" not in request.POST or "oldPin" not in request.POST or "newPin" not in request.POST:
-            return HttpResponse(json.dumps({"message": "INV_REQ"}), status=400)
-        else:
-            givenid = request.POST["device_profile_id"]
-            token = request.POST["authToken"]
-            oldpin = request.POST["oldPin"]
-            newpin = request.POST["newPin"]
+            return JsonResponse({"message": "INV_REQ"}, status=400)
 
-            # Check the length of both PINs.
-            if len(oldpin) != 6 or len(newpin) != 6:
-                return HttpResponse(json.dumps({"message": "UNAUTHORIZED"}), status=401)
+        givenid = request.POST["device_profile_id"]
+        token = request.POST["authToken"]
+        oldpin = request.POST["oldPin"]
+        newpin = request.POST["newPin"]
 
-            #Searching for a profile with id matching the given id from the POST request.
-            profile = Profile.objects.filter(id=givenid)
-            if profile.count() > 0:
-                profile = profile.get()
-                if pbkdf2_sha512.verify(token, profile.authToken) and pbkdf2_sha512.verify(oldpin, profile.pin):
-                    profile.pin = pbkdf2_sha512.hash(newpin)
-                    profile.save()
-                    return HttpResponse(json.dumps({"message": "SUCCESS"}), status=200)
-                else:
-                    return HttpResponse(json.dumps({"message": "UNAUTHORIZED"}), status=401)
-            else:
-                return HttpResponse(json.dumps({"message": "UNAUTHORIZED"}), status=401)
-    else:
-        return HttpResponse(json.dumps({"message": "INV_REQ"}), status=400)
+        # Check the length of both PINs.
+        if len(oldpin) != 6 or len(newpin) != 6:
+            return JsonResponse({"message": "UNAUTHORIZED"}, status=401)
+
+        #Searching for a profile with id matching the given id from the POST request.
+        profile = Profile.objects.filter(id=givenid)
+        if profile.count() > 0:
+            profile = profile.get()
+            if pbkdf2_sha512.verify(token, profile.authToken) and pbkdf2_sha512.verify(oldpin, profile.pin):
+                profile.pin = pbkdf2_sha512.hash(newpin)
+                profile.save()
+                return JsonResponse({"message": "SUCCESS"}, status=200)
+        return JsonResponse({"message": "UNAUTHORIZED"}, status=401)
+    return JsonResponse({"message": "INV_REQ"}, status=400)
 
 
 def index(request):
     # return render(request, 'index.html', context)
     # Returns response with server's status (AKA: Heartbeat)
     if ReadConfig()["enabled"]:
-        return HttpResponse(json.dumps({"status": "ALIVE", "version": getServerVersion()}))
-    else:
-        return HttpResponse(json.dumps({"status": "LOCKED", "version": getServerVersion()}))
+        return JsonResponse({"status": "ALIVE", "version": getServerVersion()})
+    return JsonResponse({"status": "LOCKED", "version": getServerVersion()})

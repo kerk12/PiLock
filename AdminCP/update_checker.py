@@ -1,4 +1,3 @@
-from urllib import urlopen
 import requests
 import subprocess
 
