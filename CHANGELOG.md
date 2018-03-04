@@ -1,5 +1,13 @@
 # PiLock Release Changelog
 
+## V0.3.1:
+- More fixes. What a surprise!
+- Major rework on the internals. Refactored almost all of the codebase.
+- Converted PiLock to a Python3 Project.
+- PiLock now uses venv (should've done that ages ago...).
+- Added tests and CI Integration.
+- Added Pagination to the Access Log.
+
 ## V0.3.0:
 - Fixes. LOTS OF THEM!
 - Added PINless unlocks. You no longer need to type your PIN every time you unlock, should you so desire.
