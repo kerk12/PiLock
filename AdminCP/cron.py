@@ -1,5 +1,5 @@
 from django_cron import CronJobBase, Schedule
-from notifications import check_for_updates_and_notify
+from .notifications import check_for_updates_and_notify
 
 class UpdateCheckCron(CronJobBase):
 
