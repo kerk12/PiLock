@@ -35,6 +35,9 @@ service apache2 restart
 echo 'Adding the www-data user to the dialout group (needed for the Serial Port to function)...'
 usermod -a -G dialout www-data
 
+echo 'Adding the www-data user to the gpio group (needed for the GPIO to function)...'
+usermod -a -G gpio www-data
+
 echo 'Adding cron entry to the crontab.'
 cp pilock_cron /etc/cron.d/
 

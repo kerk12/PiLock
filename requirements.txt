@@ -6,3 +6,4 @@ django-bootstrap-form
 passlib
 requests
 django_cron
+RPi.GPIO
