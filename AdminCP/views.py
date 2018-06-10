@@ -13,7 +13,10 @@ from .models import Notification
 from django.contrib.auth.decorators import login_required
 import json
 from django.conf import settings
-from main.PiLockUnlockScripts.unlock import unlock
+try:
+    from main.PiLockUnlockScripts.unlock import unlock
+except RuntimeError as e:
+    print(e)
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 
 # Create your views here.

@@ -6,7 +6,10 @@ import random
 import json
 from django.contrib.auth import authenticate, login, logout
 from .models import Profile, AccessAttempt
-from .PiLockUnlockScripts.unlock import unlock
+try:
+    from .PiLockUnlockScripts.unlock import unlock
+except RuntimeError as e:
+    print(e)
 import os, sys
 from PiLock.settings.base import getServerVersion, getRoot
 from django.conf import settings
