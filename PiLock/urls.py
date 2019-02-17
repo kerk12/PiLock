@@ -21,7 +21,7 @@ from AdminCP.notifications import check_for_debug_mode
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
-    url(r'^', include('main.urls')),
+    url(r'^', include('api.urls')),
     url(r'^AdminCP/', include('AdminCP.urls')),
 ]
 

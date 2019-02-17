@@ -7,3 +7,4 @@ passlib
 requests
 django_cron
 RPi.GPIO
+djangorestframework
